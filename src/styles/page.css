@@ -1,0 +1,561 @@
+/* page.css - WinClassic unified page layout */
+
+body, html {
+  margin: 0px;
+  padding: 0px;
+  font-family: Tahoma, 'Segoe UI', Arial, sans-serif;
+  background: #b0b0b0;
+  color: #222;
+  box-sizing: border-box;
+}
+
+.page-background {
+  min-height: 100vh;
+  background: #b0b0b0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.page-main {
+  margin-left: 0;
+  padding: 16px 24px 16px 4px;
+  min-height: 100vh;
+  background: #b0b0b0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.page-card {
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 
+    inset 0px 1px 0 #fff, 
+    inset -1px -1px 0 #808080,
+    0 2px 4px rgba(0,0,0,0.1);
+  border: 2px solid #808080;
+  padding: 24px;
+  width: 100%;
+  max-width: 1400px;
+  margin-bottom: 32px;
+  color: #222;
+}
+
+.page-header {
+  font-size: 1.5rem;
+  font-weight: bold;
+  background: #d4d0c8;
+  border: 2px outset #fff;
+  padding: 8px 16px;
+  margin-bottom: 24px;
+  color: #000;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #808080;
+}
+
+h1, h2, h3, h4, h5, h6, .page-header {
+  color: #222 !important;
+  font-family: Tahoma, 'Segoe UI', sans-serif;
+  font-weight: bold;
+  margin-top: 0;
+}
+
+/* Table header consistency */
+table th {
+  background: #d4d0c8 !important;
+  color: #222 !important;
+  font-weight: bold;
+  border-bottom: 2px solid #808080;
+}
+
+table td {
+  color: #222 !important;
+}
+
+/* Button styling moved to buttons.css */
+
+/* Dashboard */
+.dashboard-container {
+  padding: 24px;
+  background-color: #d4d0c8;
+}
+
+.dashboard-header {
+  background-color: #c0c0c0;
+  padding: 10px 16px;
+  font-size: 18px;
+  font-weight: bold;
+  border: 2px outset #fff;
+  margin-bottom: 20px;
+  color: #000;
+}
+
+.form-section {
+  border: 2px inset #808080;
+  background: #fff;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 8px 16px;
+  margin-bottom: 16px;
+}
+
+.form-grid label {
+  font-weight: bold;
+  font-size: 14px;
+  align-self: center;
+}
+
+.form-grid input,
+.form-grid select {
+  padding: 4px 6px;
+  font-size: 14px;
+  border: 2px inset #b0b0b0;
+  background-color: #f4f4f4;
+  color: #222;
+}
+
+.form-row {
+  display: flex;
+  justify-content: flex-start;
+  gap: 12px;
+}
+
+/* Enhanced form styling for consistency */
+input, select, textarea {
+  font-family: Tahoma, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  padding: 6px 8px;
+  border: 2px inset #b0b0b0;
+  background-color: #fff;
+  color: #222;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #0066cc;
+  background-color: #f8f8ff;
+  box-shadow: inset 1px 1px 2px rgba(0, 102, 204, 0.1);
+}
+
+input:disabled, select:disabled, textarea:disabled {
+  background-color: #f0f0f0;
+  color: #808080;
+  cursor: not-allowed;
+}
+
+input::placeholder {
+  color: #666;
+  font-style: italic;
+}
+
+/* Consistent spacing for form elements */
+.form-field {
+  margin-bottom: 16px;
+}
+
+.form-field label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 4px;
+  font-size: 13px;
+  color: #222;
+}
+
+/* Layout */
+.layout-container {
+  min-height: 100vh;
+  background: #b0b0b0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+}
+
+.layout-content {
+  width: 100%;
+  max-width: 1400px;
+  padding: 32px 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.page-title {
+  font-size: 2.2rem;
+  font-weight: bold;
+  color: #222;
+  margin: 40px 0 24px 0;
+  text-align: center;
+}
+
+/* Loading Spinner */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-spinner {
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-spinner-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 1rem;
+}
+
+/* Secondary button style for cancel buttons */
+.classic-button.secondary {
+  background: #e0e0e0 !important;
+  color: #333 !important;
+  border: 2px outset #e0e0e0 !important;
+}
+
+.classic-button.secondary:hover {
+  background: #d0d0d0 !important;
+}
+
+.classic-button.secondary:active {
+  border: 2px inset #e0e0e0 !important;
+}
+
+/* Disabled button styles */
+.classic-button:disabled {
+  background: #c0c0c0 !important;
+  color: #808080 !important;
+  border: 2px outset #c0c0c0 !important;
+  cursor: not-allowed !important;
+}
+
+/* Error and Success Message Styling */
+.error-message {
+  background: #ffebee;
+  border: 2px solid #ffcdd2;
+  border-radius: 4px;
+  padding: 12px 16px;
+  color: #d32f2f;
+  margin: 16px 0;
+  font-size: 14px;
+}
+
+.success-message {
+  background: #e8f5e8;
+  border: 2px solid #c8e6c9;
+  border-radius: 4px;
+  padding: 12px 16px;
+  color: #2e7d32;
+  margin: 16px 0;
+  font-size: 14px;
+}
+
+/* Better visual hierarchy for sections */
+.section-divider {
+  border: none;
+  border-top: 1px solid #d0d0d0;
+  margin: 24px 0;
+}
+
+/* Improved spacing for action buttons */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  align-items: center;
+}
+
+.action-buttons.right {
+  justify-content: flex-end;
+}
+
+.action-buttons.center {
+  justify-content: center;
+}
+
+/* Status indicators */
+.status-indicator {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-indicator.draft {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.status-indicator.active {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status-indicator.completed {
+  background: #cce5ff;
+  color: #004085;
+  border: 1px solid #b3d9ff;
+}
+
+/* Subtle animations for better UX */
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Better focus rings */
+*:focus {
+  outline: 2px solid #0066cc;
+  outline-offset: 1px;
+}
+
+input:focus, select:focus, textarea:focus, button:focus {
+  outline: none;
+}
+
+/* Enhanced table hover effects */
+.norskk-table tbody tr:hover {
+  background-color: #f0f8ff !important;
+  transition: background-color 0.2s ease;
+}
+
+.norskk-table tbody tr:hover td {
+  background-color: inherit !important;
+}
+
+/* Better dropdown styling */
+.filter-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #fff;
+  border: 2px solid #808080;
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+  z-index: 10;
+  min-width: 120px;
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 13px;
+}
+
+.filter-dropdown-option {
+  padding: 6px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #e0e0e0;
+  transition: background-color 0.15s ease;
+}
+
+.filter-dropdown-option:hover {
+  background-color: #e6f3ff;
+}
+
+.filter-dropdown-option.selected {
+  background-color: #0066cc;
+  color: #fff;
+}
+
+.filter-icon {
+  cursor: pointer;
+  margin-left: 8px;
+  color: #666;
+  font-size: 10px;
+  transition: color 0.2s ease;
+}
+
+.filter-icon:hover {
+  color: #333;
+}
+
+/* Improved modal backdrop */
+.add-estimate-modal-bg {
+  -webkit-backdrop-filter: blur(1px);
+  backdrop-filter: blur(1px);
+}
+
+/* Advanced Table Features */
+
+/* Sortable table headers */
+.sortable-header {
+  cursor: pointer;
+  position: relative;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.sortable-header:hover {
+  background-color: #c0c0c0 !important;
+}
+
+.sort-indicator {
+  margin-left: 8px;
+  font-size: 10px;
+  color: #666;
+  transition: color 0.2s ease;
+}
+
+.sort-indicator.active {
+  color: #000;
+}
+
+.sort-indicator.asc::after {
+  content: "▲";
+}
+
+.sort-indicator.desc::after {
+  content: "▼";
+}
+
+.sort-indicator.none::after {
+  content: "⇅";
+}
+
+/* Pagination */
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  padding: 12px 0;
+  border-top: 1px solid #d0d0d0;
+}
+
+.pagination-info {
+  font-size: 13px;
+  color: #666;
+}
+
+.pagination-controls {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.pagination-button {
+  padding: 4px 8px;
+  font-size: 12px;
+  font-family: Tahoma, sans-serif;
+  border: 2px outset #d4d0c8;
+  background: #d4d0c8;
+  color: #000;
+  cursor: pointer;
+  min-width: 30px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s ease;
+}
+
+.pagination-button:hover {
+  background: #c0c0c0;
+}
+
+.pagination-button:active {
+  border: 2px inset #d4d0c8;
+  background: #b0b0b0;
+}
+
+.pagination-button:disabled {
+  background: #f0f0f0;
+  color: #999;
+  cursor: not-allowed;
+  border: 2px outset #e0e0e0;
+}
+
+.pagination-button.active {
+  background: #0066cc;
+  color: #fff;
+  border: 2px inset #0066cc;
+}
+
+.page-size-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.page-size-selector select {
+  padding: 2px 4px;
+  font-size: 12px;
+  border: 2px inset #b0b0b0;
+  background: #fff;
+}
+
+/* Search/Filter bar */
+.table-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 16px;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-input {
+  padding: 6px 8px;
+  font-size: 13px;
+  border: 2px inset #b0b0b0;
+  background: #fff;
+  min-width: 200px;
+}
+
+.search-input:focus {
+  border-color: #0066cc;
+  background: #f8f8ff;
+}
+
+.clear-search-button {
+  padding: 4px 8px;
+  font-size: 11px;
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  color: #666;
+}
+
+.clear-search-button:hover {
+  background: #e0e0e0;
+  color: #333;
+}
+
+@media (max-width: 900px) {
+  .page-main {
+    margin-left: 0;
+    padding: 12px 8px;
+  }
+
+  .page-card {
+    padding: 12px;
+    max-width: 100%;
+  }
+}

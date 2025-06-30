@@ -1,0 +1,51 @@
+/* AddProjectModal.css - Updated to match light WinClassic theme */
+
+.add-project-modal-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-project-modal {
+  background: #f8f8f8;
+  border: 2px solid #a0a0a0;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #a0a0a0;
+  padding: 24px 22px 18px 22px;
+  min-width: 360px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  z-index: 1001;
+  font-family: Tahoma, 'Segoe UI', sans-serif;
+  color: #111;
+}
+
+.add-project-modal h2 {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #000;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.add-project-form input {
+  display: block;
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 8px 10px;
+  font-size: 15px;
+  border: 1.5px solid #c0c0c0;
+  border-radius: 4px;
+  background: #fff;
+  color: #222;
+}
+
+/* Button styles moved to buttons.css */

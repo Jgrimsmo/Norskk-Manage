@@ -1,0 +1,182 @@
+/* tables.css */
+
+.table-section {
+  background: #fff;
+  border: 2px solid #808080;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06), inset 1px 1px 0 #fff, inset -1px -1px 0 #808080;
+  padding: 18px;
+  margin-top: 32px;
+  flex: 2;
+  overflow-x: auto;
+}
+
+table.norskk-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  background-color: #fff;
+  color: #222;
+  font-size: 14px;
+  margin-top: 14px; /* Added spacing above table */
+  border: 1px solid #808080; /* Add border when not in table-section */
+  border-radius: 4px; /* Add border radius for standalone tables */
+}
+
+/* Override border for tables inside table-section */
+.table-section table.norskk-table {
+  border: none;
+  border-radius: 0;
+}
+
+table.norskk-table th,
+
+table.norskk-table td {
+  border: 1.5px solid #808080;
+  padding: 3px 10px;
+  text-align: left;
+  font-size: 14px;
+}
+
+table.norskk-table th {
+  background-color: #0d5c7a; /* Darker blue for header */
+  font-weight: bold;
+}
+
+/* Date title row in Time Tracking (darker background) */
+table.norskk-table .date-title-row {
+  background-color: #cdccd3 !important; /* Slightly darker than #f0f0f0 */
+}
+
+table.norskk-table tr:nth-child(even) {
+  background-color: #f4f4f4;
+}
+
+.norskk-table-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+/* Button styles moved to buttons.css */
+
+input.table-input,
+select.table-input,
+textarea.table-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px 6px;
+  font-size: 13px;
+  border: 1px inset #b0b0b0;
+  background: #f8f8f8;
+  color: #222;
+}
+
+input.table-input:focus,
+select.table-input:focus,
+textarea.table-input:focus {
+  border: 2px inset #003399;
+  background: #e4eaff;
+  outline: none;
+}
+
+.filter-row {
+  background-color: #e4e4e4;
+}
+
+.filter-row select {
+  font-size: 13px;
+  padding: 2px 6px;
+  border: 1.5px solid #808080;
+  background: #fff;
+  color: #222;
+  min-width: 90px;
+  margin: 0 2px;
+}
+
+.filter-icon {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 13px;
+  color: #888;
+  cursor: pointer;
+}
+
+.filter-dropdown {
+  position: absolute;
+  background: #fff;
+  border: 1.5px solid #808080;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  z-index: 10;
+  min-width: 120px;
+  padding: 0;
+  margin-top: 2px;
+}
+
+.filter-dropdown-option {
+  padding: 6px 12px;
+  font-size: 13px;
+  color: #222;
+  cursor: pointer;
+  background: #fff;
+  border: none;
+  width: 100%;
+  text-align: left;
+}
+
+.filter-dropdown-option:hover,
+.filter-dropdown-option.selected {
+  background: #e4e4e4;
+  color: #020202;
+}
+
+table.norskk-table th.actions,
+table.norskk-table td.actions {
+  min-width: 200px;
+  width: 18%;
+  white-space: nowrap;
+}
+
+td.actions {
+  text-align: left;
+  padding: 6px 8px;
+}
+
+td.actions > div {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 2px;
+}
+
+/* Style buttons within action cells */
+td.actions .classic-button {
+  font-size: 11px;
+  padding: 4px 8px;
+  min-width: 70px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Prevent left spacing conflicts */
+body, main, .main-content, .page-container, .content-wrapper {
+  margin-left: 0;
+  padding-left: 0 !important;
+}
+
+/* Empty state styling for consistent table empty messages */
+.table-empty-state {
+  text-align: center;
+  padding: 2rem;
+  font-style: italic;
+  color: #666;
+  background-color: #f9f9f9;
+}
+
+/* Override border for tables inside table-section */
+.table-section table.norskk-table {
+  border: none;
+  border-radius: 0;
+}

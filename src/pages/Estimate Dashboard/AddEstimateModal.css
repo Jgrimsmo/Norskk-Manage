@@ -1,0 +1,81 @@
+/* AddEstimateModal.css - WinClassic style */
+
+.add-estimate-modal-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.35);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-estimate-modal {
+  background: #fff;
+  border: 2px solid #808080;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #808080, 4px 4px 8px rgba(0,0,0,0.3);
+  padding: 24px 22px 18px 22px;
+  min-width: 420px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  z-index: 1001;
+  font-family: Tahoma, 'Segoe UI', sans-serif;
+  color: #222;
+  border-radius: 0; /* Keep it boxy for Windows Classic */
+}
+
+.add-estimate-modal h3 {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #000;
+  margin: 0 0 20px 0;
+  padding: 8px 12px;
+  background: #d4d0c8;
+  border: 2px outset #fff;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #808080;
+  margin: -24px -22px 20px -22px;
+}
+
+.add-project-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.add-project-form input {
+  display: block;
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 6px 8px;
+  font-size: 14px;
+  border: 2px inset #b0b0b0;
+  background: #f4f4f4;
+  color: #222;
+  box-sizing: border-box;
+}
+
+.add-project-form input::placeholder {
+  color: #666;
+  font-style: italic;
+}
+
+.add-project-form input:focus {
+  outline: none;
+  border: 2px inset #003399;
+  background: #e4eaff;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #d0d0d0;
+}
+
+/* Button styles moved to buttons.css */

@@ -1,0 +1,218 @@
+/* theme.css - CSS Custom Properties for Dynamic Theming */
+
+:root {
+  /* Default theme colors (Windows Classic) */
+  --color-background: #b0b0b0;
+  --color-card-background: #fff;
+  --color-header-background: #d4d0c8;
+  --color-primary-text: #222;
+  --color-secondary-text: #666;
+  --color-button-background: #d4d0c8;
+  --color-button-hover: #c0c0c0;
+  --color-button-active: #b0b0b0;
+  --color-sidebar-background: #161616;
+  --color-sidebar-text: #e0e0e0;
+  --color-sidebar-hover: #2d2d2d;
+  --color-table-header: #d4d0c8;
+  --color-table-hover: #f0f8ff;
+  --color-border-color: #808080;
+  --color-border-color-light: #d0d0d0;
+  --color-success: #28a745;
+  --color-warning: #ffc107;
+  --color-danger: #dc3545;
+  --color-info: #17a2b8;
+
+  /* Construction Calculator-specific colors */
+  --color-calc-display-bg: #1e1e1e;
+  --color-calc-display-text: #00ff00;
+  --color-calc-fraction-text: #00cc00;
+  --color-calc-highlight: #81ecec;
+  --color-calc-convert: #ffeaa7;
+  --color-calc-clear: #f88;
+}
+
+/* Apply theme colors to existing styles */
+body, html {
+  background: var(--color-background) !important;
+  color: var(--color-primary-text) !important;
+}
+
+.page-background,
+.page-main {
+  background: var(--color-background) !important;
+}
+
+.page-card,
+.form-section {
+  background: var(--color-card-background) !important;
+  border-color: var(--color-border-color) !important;
+  color: var(--color-primary-text) !important;
+}
+
+.page-header,
+.dashboard-header {
+  background: var(--color-header-background) !important;
+  color: var(--color-primary-text) !important;
+  border-color: var(--color-border-color) !important;
+}
+
+h1, h2, h3, h4, h5, h6,
+.page-header {
+  color: var(--color-primary-text) !important;
+}
+
+/* Button theming */
+.classic-button {
+  background: var(--color-button-background) !important;
+  color: var(--color-primary-text) !important;
+  border-color: var(--color-border-color) !important;
+  font-weight: bold !important;
+}
+
+.classic-button:hover {
+  background: var(--color-button-hover) !important;
+}
+
+.classic-button:active {
+  background: var(--color-button-active) !important;
+}
+
+/* Table theming */
+table th {
+  background: var(--color-table-header) !important;
+  color: var(--color-primary-text) !important;
+  border-color: var(--color-border-color) !important;
+  font-weight: bold !important;
+}
+
+table td {
+  color: var(--color-primary-text) !important;
+}
+
+.norskk-table tbody tr:hover {
+  background-color: var(--color-table-hover) !important;
+}
+
+/* Form theming */
+input, select, textarea {
+  background-color: var(--color-card-background) !important;
+  color: var(--color-primary-text) !important;
+  border-color: var(--color-border-color) !important;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--color-info) !important;
+}
+
+/* Sidebar theming */
+.sidebar {
+  background: var(--color-sidebar-background) !important;
+  color: var(--color-sidebar-text) !important;
+  border-color: var(--color-border-color) !important;
+}
+
+.sidebar-link {
+  color: var(--color-sidebar-text) !important;
+  font-weight: 500 !important;
+}
+
+.sidebar-link:hover {
+  background: var(--color-sidebar-hover) !important;
+}
+
+.sidebar-section {
+  opacity: 0.8;
+  font-weight: bold !important;
+}
+
+/* Status indicators */
+.status-indicator.success {
+  background: var(--color-success) !important;
+  color: white !important;
+}
+
+.status-indicator.warning {
+  background: var(--color-warning) !important;
+  color: white !important;
+}
+
+.status-indicator.danger {
+  background: var(--color-danger) !important;
+  color: white !important;
+}
+
+.status-indicator.info {
+  background: var(--color-info) !important;
+  color: white !important;
+}
+
+/* Success and error messages */
+.success-message {
+  background: color-mix(in srgb, var(--color-success) 20%, var(--color-card-background));
+  border-color: var(--color-success) !important;
+  color: var(--color-success) !important;
+}
+
+.error-message {
+  background: color-mix(in srgb, var(--color-danger) 20%, var(--color-card-background));
+  border-color: var(--color-danger) !important;
+  color: var(--color-danger) !important;
+}
+
+/* Pagination buttons */
+.pagination-button {
+  background: var(--color-button-background) !important;
+  color: var(--color-primary-text) !important;
+  border-color: var(--color-border-color) !important;
+}
+
+.pagination-button:hover {
+  background: var(--color-button-hover) !important;
+}
+
+.pagination-button.active {
+  background: var(--color-info) !important;
+  color: white !important;
+}
+
+/* Modal */
+.add-project-modal {
+  background: var(--color-card-background) !important;
+  color: var(--color-primary-text) !important;
+  border-color: var(--color-border-color) !important;
+}
+
+.add-project-modal-bg {
+  background: color-mix(in srgb, var(--color-primary-text) 50%, transparent) !important;
+}
+
+/* Dropdown */
+.filter-dropdown {
+  background: var(--color-card-background) !important;
+  border-color: var(--color-border-color) !important;
+  color: var(--color-primary-text) !important;
+}
+
+.filter-dropdown-option:hover {
+  background-color: var(--color-table-hover) !important;
+}
+
+.filter-dropdown-option.selected {
+  background-color: var(--color-info) !important;
+  color: white !important;
+}
+
+/* Theme transitions */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Spinner override */
+.loading-spinner,
+.fade-in {
+  transition: none;
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}

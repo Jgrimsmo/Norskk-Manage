@@ -1,0 +1,90 @@
+/* SidebarLayout.css - WinClassic themed layout (lighter version) */
+
+.layout-container {
+  display: flex;
+  height: 100vh;
+  background: #0a0a0a;
+  overflow: hidden;
+  font-family: Tahoma, 'Segoe UI', sans-serif;
+}
+
+.sidebar {
+  width: 210px;
+  background-color: #f0f0f0; /* Match page background */
+  color: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  box-shadow: inset -1px 0 0 #a0a0a0;
+  border-right: 2px solid #888;
+  z-index: 100;
+}
+
+.sidebar-label {
+  font-size: 11px;
+  font-weight: bold;
+  color: #444;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 16px 18px 8px 18px;
+  border-top: 1px solid #aaa;
+}
+
+.sidebar-link {
+  color: #222 !important;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 18px;
+  border-radius: 2px;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sidebar-link:hover,
+.sidebar-link.active,
+.sidebar-link:focus {
+  background: #b8b8b8;
+  color: #000 !important;
+  font-weight: bold;
+}
+
+.sidebar-icon {
+  margin-right: 10px;
+  font-size: 15px;
+  opacity: 0.9;
+  min-width: 18px;
+  text-align: center;
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 32px 40px;
+  overflow-y: auto;
+  background: #f0f0f0;
+  box-sizing: border-box;
+  min-height: 100vh;
+  border-left: 215px solid #f0f0f0;
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    width: 100px;
+    padding: 12px 0;
+  }
+
+  .sidebar-link {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+
+  .main-content {
+    padding: 16px;
+  }
+}

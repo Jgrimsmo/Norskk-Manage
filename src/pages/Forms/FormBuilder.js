@@ -1,23 +1,16 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import Layout from '../../components/Layout';
+import { CONDITIONS, APPROVAL_STATUS, WEATHER_OPTIONS, FORM_FIELD_TYPES } from '../../lib/constants/appConstants';
 import '../../styles/page.css';
 import './FormBuilder.css';
 
+// Use constants from our centralized file with additional specific ones
 const FIELD_TYPES = {
-  TEXT: 'text',
-  TEXTAREA: 'textarea',
-  SELECT: 'select',
-  RADIO: 'radio',
-  CHECKBOX: 'checkbox',
-  NUMBER: 'number',
-  DATE: 'date',
+  ...FORM_FIELD_TYPES,
   TIME: 'time',
-  EMAIL: 'email',
   PHONE: 'phone',
-  SIGNATURE: 'signature',
   FILE: 'file',
-  HEADING: 'heading',
   DIVIDER: 'divider'
 };
 
@@ -32,7 +25,7 @@ const SAMPLE_FORMS = [
       { id: '1', type: 'heading', label: 'Site Information', required: false },
       { id: '2', type: 'text', label: 'Project Name', required: true },
       { id: '3', type: 'date', label: 'Date', required: true },
-      { id: '4', type: 'select', label: 'Weather', required: true, options: ['Sunny', 'Cloudy', 'Rainy', 'Snow'] },
+      { id: '4', type: 'select', label: 'Weather', required: true, options: WEATHER_OPTIONS.map(w => w.value) },
       { id: '5', type: 'heading', label: 'Work Progress', required: false },
       { id: '6', type: 'textarea', label: 'Work Completed Today', required: true },
       { id: '7', type: 'textarea', label: 'Work Planned for Tomorrow', required: true },
@@ -54,10 +47,10 @@ const SAMPLE_FORMS = [
       { id: '2', type: 'select', label: 'Equipment Type', required: true, options: ['Excavator', 'Bulldozer', 'Crane', 'Truck', 'Other'] },
       { id: '3', type: 'date', label: 'Inspection Date', required: true },
       { id: '4', type: 'text', label: 'Inspector Name', required: true },
-      { id: '5', type: 'radio', label: 'Overall Condition', required: true, options: ['Excellent', 'Good', 'Fair', 'Poor'] },
+      { id: '5', type: 'radio', label: 'Overall Condition', required: true, options: Object.values(CONDITIONS) },
       { id: '6', type: 'checkbox', label: 'Safety Features Checked', required: true, options: ['Brakes', 'Lights', 'Horn', 'Emergency Stop', 'Seatbelt'] },
       { id: '7', type: 'textarea', label: 'Issues Found', required: false },
-      { id: '8', type: 'radio', label: 'Approved for Use', required: true, options: ['Yes', 'No', 'Conditional'] }
+      { id: '8', type: 'radio', label: 'Approved for Use', required: true, options: Object.values(APPROVAL_STATUS) }
     ]
   }
 ];

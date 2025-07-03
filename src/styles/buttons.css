@@ -82,6 +82,47 @@
   box-shadow: inset -1px -1px 0 #ddd, inset 1px 1px 0 #999;
 }
 
+/* Tertiary Button Variant */
+.classic-button.tertiary {
+  background: transparent;
+  color: #555;
+  border: 1px solid #ccc;
+  box-shadow: none;
+  text-decoration: underline;
+}
+
+.classic-button.tertiary:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.classic-button.tertiary:active {
+  background: #e8e8e8;
+  border: 1px solid #999;
+}
+
+/* Small Button Variant */
+.classic-button.small {
+  padding: 2px 4px;
+  font-size: 11px;
+}
+
+/* Danger Button Variant */
+.classic-button.danger {
+  background: #dc3545;
+  color: white;
+  border: 2px outset #dc3545;
+}
+
+.classic-button.danger:hover {
+  background: #c82333;
+}
+
+.classic-button.danger:active {
+  background: #a71d2a;
+  border: 2px inset #dc3545;
+}
+
 /* Disabled Button Styles */
 .classic-button:disabled {
   background: #f0f0f0;

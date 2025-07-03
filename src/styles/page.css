@@ -1,8 +1,7 @@
 /* page.css - WinClassic unified page layout */
 
 body, html {
-  margin: 0px;
-  padding: 0px;
+  margin: /* Form sections */x;
   font-family: Tahoma, 'Segoe UI', Arial, sans-serif;
   background: #b0b0b0;
   color: #222;
@@ -197,49 +196,7 @@ input::placeholder {
   text-align: center;
 }
 
-/* Loading Spinner */
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.loading-spinner {
-  border: 2px solid #f3f3f3;
-  border-top: 2px solid #3498db;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-.loading-spinner-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 1rem;
-}
-
-/* Secondary button style for cancel buttons */
-.classic-button.secondary {
-  background: #e0e0e0 !important;
-  color: #333 !important;
-  border: 2px outset #e0e0e0 !important;
-}
-
-.classic-button.secondary:hover {
-  background: #d0d0d0 !important;
-}
-
-.classic-button.secondary:active {
-  border: 2px inset #e0e0e0 !important;
-}
-
-/* Disabled button styles */
-.classic-button:disabled {
-  background: #c0c0c0 !important;
-  color: #808080 !important;
-  border: 2px outset #c0c0c0 !important;
-  cursor: not-allowed !important;
-}
+/* Form layout continues below */
 
 /* Error and Success Message Styling */
 .error-message {
@@ -283,45 +240,6 @@ input::placeholder {
 
 .action-buttons.center {
   justify-content: center;
-}
-
-/* Status indicators */
-.status-indicator {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.status-indicator.draft {
-  background: #fff3cd;
-  color: #856404;
-  border: 1px solid #ffeaa7;
-}
-
-.status-indicator.active {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.status-indicator.completed {
-  background: #cce5ff;
-  color: #004085;
-  border: 1px solid #b3d9ff;
-}
-
-/* Subtle animations for better UX */
-.fade-in {
-  animation: fadeIn 0.3s ease-in;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Better focus rings */

@@ -1,31 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Layout from "../../components/Layout";
+import { useProjectManagement } from "../../hooks/useProjectManagement";
+import { fetchCollection, addToCollection, updateDocById, deleteDocById } from "../../lib/utils/firebaseHelpers";
 import "../../styles/page.css";
 import "../../styles/buttons.css";
 import "../../styles/theme.css";
 import "../../styles/tables.css";
-
-const sampleProjects = [
-  { id: "proj-1", name: "Downtown Office Complex", status: "Active", priority: "High" },
-  { id: "proj-2", name: "Highway Bridge Repair", status: "Active", priority: "Critical" },
-  { id: "proj-3", name: "Residential Development", status: "Active", priority: "Medium" },
-];
-
-const sampleCrew = [
-  { id: "crew-1", name: "John Smith", role: "Foreman", status: "Available", avatar: "👷‍♂️" },
-  { id: "crew-2", name: "Anna Lee", role: "Heavy Equipment Operator", status: "Available", avatar: "👩‍🔧" },
-  { id: "crew-3", name: "Mike Brown", role: "General Laborer", status: "Available", avatar: "👨‍🔧" },
-  { id: "crew-4", name: "Sarah Wilson", role: "Site Supervisor", status: "Assigned", avatar: "👩‍💼" },
-  { id: "crew-5", name: "David Chen", role: "Electrician", status: "Available", avatar: "⚡" },
-];
-
-const sampleEquipment = [
-  { id: "equip-1", name: "CAT 320 Excavator", type: "Heavy Equipment", status: "Available", icon: "🚜" },
-  { id: "equip-2", name: "Ford F-350 Pickup", type: "Vehicle", status: "Available", icon: "🚛" },
-  { id: "equip-3", name: "Concrete Mixer Truck", type: "Specialized", status: "In Use", icon: "🚌" },
-  { id: "equip-4", name: "Crane - 50 Ton", type: "Heavy Equipment", status: "Available", icon: "🏗️" },
-  { id: "equip-5", name: "Dump Truck", type: "Vehicle", status: "Available", icon: "🚚" },
-];
 
 // Get current week dates
 const getCurrentWeek = () => {
@@ -84,20 +64,111 @@ const getCurrentMonth = () => {
   return monthDates;
 };
 
-export default function DispatchCalendar() {
+export default function DispatchCalendarPage() {
   const [assignments, setAssignments] = useState({});
-  const [crew, setCrew] = useState(sampleCrew);
-  const [projects, setProjects] = useState(sampleProjects);
-  const [equipment, setEquipment] = useState(sampleEquipment);
-  const [selectedProject, setSelectedProject] = useState('proj-1');
+  const [crew, setCrew] = useState([]);
+  const [equipment, setEquipment] = useState([]);
+  const [selectedProject, setSelectedProject] = useState('');
+  const [selectedResources, setSelectedResources] = useState([]);
+  const [viewMode, setViewMode] = useState('week'); // 'week' or 'month'
   const [currentWeek, setCurrentWeek] = useState(getCurrentWeek());
   const [currentMonth, setCurrentMonth] = useState(getCurrentMonth());
-  const [viewMode, setViewMode] = useState('week'); // 'week' or 'month'
-  const [selectedResources, setSelectedResources] = useState([]);
   const [showWarning, setShowWarning] = useState(false);
   const [warningMessage, setWarningMessage] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const addAssignment = (date) => {
+  // Use the project management hook
+  const { projects, loading: projectsLoading } = useProjectManagement();
+
+  // Load data on component mount
+  useEffect(() => {
+    loadDispatchData();
+  }, []);
+
+  // Set selected project when projects are loaded
+  useEffect(() => {
+    if (projects.length > 0 && !selectedProject) {
+      setSelectedProject(projects[0].id);
+    }
+  }, [projects, selectedProject]);
+
+  const loadDispatchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Load crew and equipment data
+      const [crewData, equipmentData, assignmentsData] = await Promise.all([
+        loadCrewData(),
+        loadEquipmentData(),
+        fetchCollection("assignments")
+      ]);
+
+      setCrew(crewData);
+      setEquipment(equipmentData);
+      
+      // Convert assignments array to object for easier lookup
+      const assignmentsObj = {};
+      assignmentsData.forEach(assignment => {
+        assignmentsObj[assignment.id] = assignment;
+      });
+      setAssignments(assignmentsObj);
+
+    } catch (err) {
+      console.error("Error loading dispatch data:", err);
+      setError("Failed to load dispatch data. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadCrewData = async () => {
+    try {
+      const crewData = await fetchCollection("crew");
+      return crewData.map(member => ({
+        ...member,
+        status: member.status || 'Available',
+        avatar: "👷‍♂️"
+      }));
+    } catch (err) {
+      console.error("Error loading crew:", err);
+      return [];
+    }
+  };
+
+  const loadEquipmentData = async () => {
+    try {
+      const equipmentData = await fetchCollection("equipment");
+      return equipmentData.map(item => ({
+        ...item,
+        status: item.status || 'Available',
+        icon: getEquipmentIcon(item.type)
+      }));
+    } catch (err) {
+      console.error("Error loading equipment:", err);
+      return [];
+    }
+  };
+
+  // Helper function to get equipment icon based on type
+  const getEquipmentIcon = (type) => {
+    switch (type) {
+      case 'Excavator': return '🚜';
+      case 'Skid Steer': return '🚛';
+      case 'Attachment': return '🔧';
+      case 'Compactor': return '🚌';
+      case 'Dump Truck': return '🚚';
+      case 'Crane': return '🏗️';
+      case 'Bulldozer': return '🚜';
+      case 'Loader': return '🚛';
+      default: return '�';
+    }
+  };
+
+// Get current week dates
+  // Add assignment function with Firebase integration
+  const addAssignment = async (date) => {
     if (selectedResources.length === 0) {
       setWarningMessage('Please select at least one crew member or equipment first');
       setShowWarning(true);
@@ -133,38 +204,52 @@ export default function DispatchCalendar() {
       return;
     }
     
-    // Create assignments for all selected resources
-    selectedResources.forEach(selectedResource => {
-      const newAssignment = {
-        id: `assign-${Date.now()}-${selectedResource.id}`,
-        resourceId: selectedResource.id,
-        resourceType: selectedResource.type,
-        projectId: selectedProject,
-        projectName: selectedProjectData?.name || 'Unknown Project',
-        date: date,
-        status: 'Scheduled'
-      };
-      
-      setAssignments(prev => ({
-        ...prev,
-        [newAssignment.id]: newAssignment
-      }));
-    });
-
-    // Keep selections for adding to multiple dates
-    // setSelectedResources([]) - removed auto-clear
+    try {
+      // Create assignments for all selected resources
+      for (const selectedResource of selectedResources) {
+        const newAssignment = {
+          resourceId: selectedResource.id,
+          resourceType: selectedResource.type,
+          projectId: selectedProject,
+          projectName: selectedProjectData?.name || 'Unknown Project',
+          date: date,
+          status: 'Scheduled',
+          createdAt: new Date().toISOString()
+        };
+        
+        // Add to Firebase
+        const assignmentId = await addToCollection("assignments", newAssignment);
+        
+        // Update local state
+        setAssignments(prev => ({
+          ...prev,
+          [assignmentId]: { ...newAssignment, id: assignmentId }
+        }));
+      }
+    } catch (err) {
+      console.error("Error adding assignments:", err);
+      setError("Failed to add assignments. Please try again.");
+    }
   };
 
-  const removeAssignment = (assignmentId) => {
+  const removeAssignment = async (assignmentId) => {
     const assignment = assignments[assignmentId];
     if (!assignment) return;
 
-    // Remove assignment
-    setAssignments(prev => {
-      const newAssignments = { ...prev };
-      delete newAssignments[assignmentId];
-      return newAssignments;
-    });
+    try {
+      // Remove from Firebase
+      await deleteDocById("assignments", assignmentId);
+      
+      // Remove from local state
+      setAssignments(prev => {
+        const newAssignments = { ...prev };
+        delete newAssignments[assignmentId];
+        return newAssignments;
+      });
+    } catch (err) {
+      console.error("Error removing assignment:", err);
+      setError("Failed to remove assignment. Please try again.");
+    }
   };
 
   const navigateWeek = (direction) => {
@@ -242,6 +327,33 @@ export default function DispatchCalendar() {
   const isResourceSelected = (resourceId) => {
     return selectedResources.some(r => r.id === resourceId);
   };
+
+  if (loading || projectsLoading) {
+    return (
+      <Layout title="Dispatch & Scheduling">
+        <div className="page-container">
+          <h1>📅 Dispatch Calendar</h1>
+          <div>Loading dispatch data...</div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout title="Dispatch & Scheduling">
+        <div className="page-container">
+          <h1>📅 Dispatch Calendar</h1>
+          <div className="error-message">
+            Error: {error}
+            <button onClick={loadDispatchData} style={{ marginLeft: '10px' }}>
+              Retry
+            </button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout title="Dispatch & Scheduling">

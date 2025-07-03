@@ -1,62 +1,203 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./dispatch.css";
 import Layout from "../../components/Layout";
-
-const sampleProjects = [
-  { id: "proj-1", name: "Downtown Office Complex", status: "Active", priority: "High", color: "#e74c3c" },
-  { id: "proj-2", name: "Highway Bridge Repair", status: "Active", priority: "Critical", color: "#c0392b" },
-  { id: "proj-3", name: "Residential Development", status: "Active", priority: "Medium", color: "#f39c12" },
-];
-
-const sampleCrew = [
-  { id: "crew-1", name: "John Smith", role: "Foreman", status: "Available", skills: ["Leadership", "Safety"], rating: 4.8, avatar: "👷‍♂️" },
-  { id: "crew-2", name: "Anna Lee", role: "Heavy Equipment Operator", status: "Available", skills: ["Excavator", "Bulldozer"], rating: 4.9, avatar: "👩‍🔧" },
-  { id: "crew-3", name: "Mike Brown", role: "General Laborer", status: "Available", skills: ["Construction", "Cleanup"], rating: 4.5, avatar: "👨‍🔧" },
-];
-
-const sampleEquipment = [
-  { id: "equip-1", name: "CAT 320 Excavator", type: "Heavy Equipment", status: "Available", location: "Yard A", icon: "🚜" },
-  { id: "equip-2", name: "Ford F-350 Pickup", type: "Vehicle", status: "Available", location: "Office", icon: "🚛" },
-  { id: "equip-3", name: "Concrete Mixer Truck", type: "Specialized", status: "In Use", location: "Site B", icon: "🚌" },
-];
+import { useProjectManagement } from "../../hooks/useProjectManagement";
+import { fetchCollection, addToCollection, updateDocById, deleteDocById } from "../../lib/utils/firebaseHelpers";
 
 export default function DispatchPageFresh() {
   const [assignments, setAssignments] = useState({});
-  const [crew, setCrew] = useState(sampleCrew);
-  const [projects, setProjects] = useState(sampleProjects);
-  const [equipment, setEquipment] = useState(sampleEquipment);
-  const [selectedProject, setSelectedProject] = useState('proj-1');
+  const [crew, setCrew] = useState([]);
+  const [equipment, setEquipment] = useState([]);
+  const [selectedProject, setSelectedProject] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Add assignment function
-  const addAssignment = (resourceId, resourceType) => {
-    const selectedProjectData = projects.find(p => p.id === selectedProject);
-    const newAssignment = {
-      id: `assign-${Date.now()}`,
-      resourceId,
-      resourceType,
-      projectId: selectedProject,
-      projectName: selectedProjectData?.name || 'Unknown Project',
-      date: new Date().toISOString().split('T')[0],
-      status: 'Scheduled'
-    };
-    
-    setAssignments(prev => ({
-      ...prev,
-      [newAssignment.id]: newAssignment
-    }));
+  // Use the project management hook
+  const { projects, loading: projectsLoading } = useProjectManagement();
 
-    // Update resource status
-    if (resourceType === 'crew') {
-      setCrew(prev => prev.map(c => 
-        c.id === resourceId ? { ...c, status: 'Assigned' } : c
-      ));
-    } else {
-      setEquipment(prev => prev.map(e => 
-        e.id === resourceId ? { ...e, status: 'In Use' } : e
-      ));
+  // Load crew and equipment data on component mount
+  useEffect(() => {
+    loadDispatchData();
+  }, []);
+
+  // Set selected project when projects are loaded
+  useEffect(() => {
+    if (projects.length > 0 && !selectedProject) {
+      setSelectedProject(projects[0].id);
+    }
+  }, [projects, selectedProject]);
+
+  const loadDispatchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Load crew and equipment data
+      const [crewData, equipmentData, assignmentsData] = await Promise.all([
+        loadCrewData(),
+        loadEquipmentData(),
+        fetchCollection("assignments")
+      ]);
+
+      setCrew(crewData);
+      setEquipment(equipmentData);
+      
+      // Convert assignments array to object for easier lookup
+      const assignmentsObj = {};
+      assignmentsData.forEach(assignment => {
+        assignmentsObj[assignment.id] = assignment;
+      });
+      setAssignments(assignmentsObj);
+
+    } catch (err) {
+      console.error("Error loading dispatch data:", err);
+      setError("Failed to load dispatch data. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
+
+  const loadCrewData = async () => {
+    try {
+      const crewData = await fetchCollection("crew");
+      // Use existing crew data from the Crew page
+      return crewData.map(member => ({
+        ...member,
+        status: member.status || 'Available', // Add status if not present
+        avatar: "👷‍♂️" // Add default avatar for display
+      }));
+    } catch (err) {
+      console.error("Error loading crew:", err);
+      // Return empty array if crew collection doesn't exist yet
+      return [];
+    }
+  };
+
+  const loadEquipmentData = async () => {
+    try {
+      const equipmentData = await fetchCollection("equipment");
+      // Use existing equipment data from the Equipment page
+      return equipmentData.map(item => ({
+        ...item,
+        status: item.status || 'Available', // Add status if not present
+        location: item.location || 'Unknown', // Add location if not present
+        icon: getEquipmentIcon(item.type) // Add icon based on type
+      }));
+    } catch (err) {
+      console.error("Error loading equipment:", err);
+      // Return empty array if equipment collection doesn't exist yet
+      return [];
+    }
+  };
+
+  // Helper function to get equipment icon based on type
+  const getEquipmentIcon = (type) => {
+    switch (type) {
+      case 'Excavator': return '🚜';
+      case 'Skid Steer': return '🚛';
+      case 'Attachment': return '🔧';
+      case 'Compactor': return '🚌';
+      default: return '⚙️';
+    }
+  };
+
+  // Add assignment function
+  const addAssignment = async (resourceId, resourceType) => {
+    try {
+      const selectedProjectData = projects.find(p => p.id === selectedProject);
+      const newAssignment = {
+        resourceId,
+        resourceType,
+        projectId: selectedProject,
+        projectName: selectedProjectData?.name || 'Unknown Project',
+        date: new Date().toISOString().split('T')[0],
+        status: 'Scheduled'
+      };
+      
+      // Save to Firebase
+      const assignmentId = await addToCollection("assignments", newAssignment);
+      const assignmentWithId = { id: assignmentId, ...newAssignment };
+      
+      setAssignments(prev => ({
+        ...prev,
+        [assignmentId]: assignmentWithId
+      }));
+
+      // Update resource status
+      if (resourceType === 'crew') {
+        await updateDocById("crew", resourceId, { status: 'Assigned' });
+        setCrew(prev => prev.map(c => 
+          c.id === resourceId ? { ...c, status: 'Assigned' } : c
+        ));
+      } else {
+        await updateDocById("equipment", resourceId, { status: 'In Use' });
+        setEquipment(prev => prev.map(e => 
+          e.id === resourceId ? { ...e, status: 'In Use' } : e
+        ));
+      }
+    } catch (err) {
+      console.error("Error adding assignment:", err);
+      alert("Failed to create assignment. Please try again.");
+    }
+  };
+
+  const removeAssignment = async (assignmentId) => {
+    try {
+      const assignment = assignments[assignmentId];
+      if (!assignment) return;
+
+      // Delete from Firebase
+      await deleteDocById("assignments", assignmentId);
+      
+      // Update local state
+      setAssignments(prev => {
+        const updated = { ...prev };
+        delete updated[assignmentId];
+        return updated;
+      });
+
+      // Update resource status back to available
+      if (assignment.resourceType === 'crew') {
+        await updateDocById("crew", assignment.resourceId, { status: 'Available' });
+        setCrew(prev => prev.map(c => 
+          c.id === assignment.resourceId ? { ...c, status: 'Available' } : c
+        ));
+      } else {
+        await updateDocById("equipment", assignment.resourceId, { status: 'Available' });
+        setEquipment(prev => prev.map(e => 
+          e.id === assignment.resourceId ? { ...e, status: 'Available' } : e
+        ));
+      }
+    } catch (err) {
+      console.error("Error removing assignment:", err);
+      alert("Failed to remove assignment. Please try again.");
+    }
+  };
+
+  if (loading || projectsLoading) {
+    return (
+      <Layout title="Smart Dispatch & Scheduling">
+        <div style={{ textAlign: 'center', padding: '2rem' }}>
+          Loading dispatch data...
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout title="Smart Dispatch & Scheduling">
+        <div style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>
+          {error}
+          <br />
+          <button className="classic-button" onClick={loadDispatchData} style={{ marginTop: '1rem' }}>
+            Try Again
+          </button>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout title="Smart Dispatch & Scheduling">
@@ -128,17 +269,22 @@ export default function DispatchPageFresh() {
         <div className="assignments-section" style={{ background: "white", borderRadius: "10px", padding: "20px", marginTop: "20px", boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)" }}>
           <h3 style={{ margin: "0 0 20px 0", color: "#374151", fontSize: "18px", fontWeight: "600" }}>Today's Assignments ({Object.keys(assignments).length})</h3>
           {Object.values(assignments).map(assignment => (
-            <div key={assignment.id} className="assignment-card" style={{ display: "flex", alignItems: "center", gap: "15px", padding: "16px", marginBottom: "12px", background: "#fef3c7", border: "2px solid #fbbf24", borderRadius: "12px" }}>
-              <div className="assignment-info" style={{ flex: 1 }}>
-                <div className="resource-name" style={{ fontWeight: "600", color: "#1f2937", marginBottom: "4px", fontSize: "16px" }}>
-                  {assignment.resourceType === 'crew' 
-                    ? crew.find(c => c.id === assignment.resourceId)?.name 
-                    : equipment.find(e => e.id === assignment.resourceId)?.name
-                  }
+            <div key={assignment.id} className="assignment-card" style={{ display: "flex", alignItems: "center", gap: "15px", padding: "16px", marginBottom: "12px", background: "#fef3c7", border: "2px solid #fbbf24", borderRadius: "12px" }}>                <div className="assignment-info" style={{ flex: 1 }}>
+                  <div className="resource-name" style={{ fontWeight: "600", color: "#1f2937", marginBottom: "4px", fontSize: "16px" }}>
+                    {assignment.resourceType === 'crew' 
+                      ? crew.find(c => c.id === assignment.resourceId)?.name || 'Unknown Crew Member'
+                      : equipment.find(e => e.id === assignment.resourceId)?.name || 'Unknown Equipment'
+                    }
+                  </div>
+                  <div className="project-name" style={{ color: "#6b7280", marginBottom: "4px", fontSize: "14px" }}>{assignment.projectName}</div>
+                  <div className="assignment-type" style={{ color: "#d97706", fontSize: "12px", fontWeight: "500", textTransform: "uppercase", background: "#fed7aa", padding: "2px 8px", borderRadius: "12px", display: "inline-block" }}>{assignment.resourceType}</div>
                 </div>
-                <div className="project-name" style={{ color: "#6b7280", marginBottom: "4px", fontSize: "14px" }}>{assignment.projectName}</div>
-                <div className="assignment-type" style={{ color: "#d97706", fontSize: "12px", fontWeight: "500", textTransform: "uppercase", background: "#fed7aa", padding: "2px 8px", borderRadius: "12px", display: "inline-block" }}>{assignment.resourceType}</div>
-              </div>
+                <button 
+                  onClick={() => removeAssignment(assignment.id)}
+                  style={{ background: "#ef4444", color: "white", border: "none", padding: "8px 12px", borderRadius: "8px", cursor: "pointer", fontSize: "12px", fontWeight: "500" }}
+                >
+                  Remove
+                </button>
             </div>
           ))}
         </div>

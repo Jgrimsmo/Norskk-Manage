@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Layout from "../../components/Layout";
 import "../../styles/page.css";
 import "../../styles/tables.css";
-import { fetchDocById, setDocById } from "../../Utils/firebaseHelpers";
+import { fetchDocById, setDocById } from "../../lib/utils/firebaseHelpers";
 
 export default function EstimateSettings() {
   const [settings, setSettings] = useState({

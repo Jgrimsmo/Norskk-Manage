@@ -43,10 +43,10 @@ export default function Sidebar({ isCollapsed, onToggleCollapse }) {
   return (
     <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-header">
-        <div className="sidebar-logo-container">
+        <Link to="/" className="sidebar-logo-container">
           <img src={require("../assets/logos/norskk-logo.png")} alt="Norskk Management Logo" className="sidebar-logo" />
           {!isCollapsed && <span className="sidebar-title">Norskk Management</span>}
-        </div>
+        </Link>
         <button 
           className="sidebar-toggle" 
           onClick={onToggleCollapse}

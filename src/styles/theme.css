@@ -125,27 +125,6 @@ input:focus, select:focus, textarea:focus {
   font-weight: bold !important;
 }
 
-/* Status indicators */
-.status-indicator.success {
-  background: var(--color-success) !important;
-  color: white !important;
-}
-
-.status-indicator.warning {
-  background: var(--color-warning) !important;
-  color: white !important;
-}
-
-.status-indicator.danger {
-  background: var(--color-danger) !important;
-  color: white !important;
-}
-
-.status-indicator.info {
-  background: var(--color-info) !important;
-  color: white !important;
-}
-
 /* Success and error messages */
 .success-message {
   background: color-mix(in srgb, var(--color-success) 20%, var(--color-card-background));
@@ -207,12 +186,7 @@ input:focus, select:focus, textarea:focus {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-/* Spinner override */
-.loading-spinner,
-.fade-in {
-  transition: none;
-}
-
+/* Spinner override - remove transitions from spinner */
 .loading-spinner {
-  animation: spin 1s linear infinite;
+  transition: none;
 }

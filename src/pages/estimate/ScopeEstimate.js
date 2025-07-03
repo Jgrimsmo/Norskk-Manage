@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { db } from "../../Firebase/firebaseConfig";
 import { collection, onSnapshot } from "firebase/firestore";
-import { fetchCollection, fetchSubcollection, addToSubcollection, updateSubcollectionDoc, deleteSubcollectionDoc } from "../../Utils/firebaseHelpers";
+import { fetchCollection, fetchSubcollection, addToSubcollection, updateSubcollectionDoc, deleteSubcollectionDoc } from "../../lib/utils/firebaseHelpers";
 import '../../styles/page.css';
 import '../../styles/tables.css';
 import Layout from "../../components/Layout";

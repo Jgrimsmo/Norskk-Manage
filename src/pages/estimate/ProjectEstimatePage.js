@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import { serverTimestamp } from "firebase/firestore";
-import { fetchCollection, addToCollection, deleteDocById, fetchSubcollection, updateDocById } from "../../Utils/firebaseHelpers";
+import { fetchCollection, addToCollection, deleteDocById, fetchSubcollection, updateDocById } from "../../lib/utils/firebaseHelpers";
+import { formatDate } from "../../lib/utils/dateUtils";
+import { PROJECT_STATUS, ESTIMATE_STATUS_OPTIONS } from "../../lib/constants/appConstants";
 import { Link } from "react-router-dom";
 import '../../styles/tables.css';
-import '../Estimate Dashboard/AddEstimateModal.css';
+import '../EstimateDashboard/AddEstimateModal.css';
 import '../../styles/page.css';
 import Layout from "../../components/Layout";
 import LoadingSpinner from "../../components/LoadingSpinner";
@@ -45,33 +47,26 @@ export default function ProjectEstimatePage() {
     status: useRef()
   };
 
-  // Define available status options
-  const STATUS_OPTIONS = [
-    'In Progress',
-    'Sent',
-    'Approved',
-    'Rejected',
-    'Under Review'
-  ];
+  // Use status options from constants
+  const STATUS_OPTIONS = ESTIMATE_STATUS_OPTIONS;
 
-  // Helper function to format dates consistently
-  const formatDate = (date) => {
+  // Helper function to format dates consistently using our utility
+  const formatEstimateDate = (date) => {
     if (!date) return "N/A";
     
     // Handle Firebase timestamp
     if (date.seconds) {
-      return new Date(date.seconds * 1000).toLocaleDateString();
+      return formatDate(new Date(date.seconds * 1000).toISOString().split('T')[0]);
     }
     
-    // Handle YYYY-MM-DD format (avoid timezone conversion)
+    // Handle YYYY-MM-DD format
     if (typeof date === 'string' && date.match(/^\d{4}-\d{2}-\d{2}$/)) {
-      const [year, month, day] = date.split('-');
-      return new Date(parseInt(year), parseInt(month) - 1, parseInt(day)).toLocaleDateString();
+      return formatDate(date);
     }
     
     // Handle ISO string or other date formats
     if (typeof date === 'string' || date instanceof Date) {
-      return new Date(date).toLocaleDateString();
+      return formatDate(new Date(date).toISOString().split('T')[0]);
     }
     
     return "N/A";
@@ -358,12 +353,12 @@ export default function ProjectEstimatePage() {
                             <td>{project.developer || "N/A"}</td>
                             <td>{project.address || "N/A"}</td>
                             <td>{project.estimator || "N/A"}</td>
-                            <td>{formatDate(project.estimateDate)}</td>
+                            <td>{formatEstimateDate(project.estimateDate)}</td>
                             <td>
-                              {formatDate(project.createdDate)}
+                              {formatEstimateDate(project.createdDate)}
                             </td>
                             <td>
-                              {formatDate(project.updatedDate)}
+                              {formatEstimateDate(project.updatedDate)}
                             </td>
                             <td>
                               <select

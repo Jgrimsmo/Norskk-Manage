@@ -204,16 +204,29 @@ export default function PDFPreviewModal({ show, onClose, report }) {
               <div className="pdf-section">
                 <h3>SITE PHOTOS</h3>
                 <div className="pdf-photos">
-                  {report.photos.map((photo, index) => (
-                    <div key={index} className="pdf-photo-item">
-                      <img 
-                        src={photo.url} 
-                        alt={`Site photo ${index + 1}`}
-                        className="pdf-photo"
-                      />
-                      <p className="pdf-photo-caption">{photo.name}</p>
-                    </div>
-                  ))}
+                  {report.photos.map((photo, index) => {
+                    console.log(`PDF Preview Photo ${index}:`, photo);
+                    return (
+                      <div key={index} className="pdf-photo-item">
+                        <img 
+                          src={photo.url} 
+                          alt={`Site photo ${index + 1}`}
+                          className="pdf-photo"
+                          crossOrigin="anonymous"
+                          onClick={() => window.open(photo.url, '_blank')}
+                          style={{ cursor: 'pointer' }}
+                          title="Click to view full-size image"
+                          onError={(e) => {
+                            console.error(`Failed to load photo ${index} in PDF preview:`, photo.url);
+                            e.target.style.border = '2px solid red';
+                            e.target.style.background = '#ffe6e6';
+                            e.target.alt = `Error loading photo ${index + 1}`;
+                          }}
+                        />
+                        <p className="pdf-photo-caption">{photo.name}</p>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}

@@ -6,7 +6,7 @@ import "../../styles/page.css";
 import "../../styles/tables.css"; // Shared table styles
 import "../../styles/buttons.css"; // Importing buttons.css for button styles
 import "../../components/shared/shared.css";
-import ScopeEstimateClassic from "../estimate/ScopeEstimateClassic";
+import ScopeEstimateClassic from "../Estimate/ScopeEstimateClassic";
 import Layout from "../../components/Layout";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import ProposalModal from "./ProposalModal";

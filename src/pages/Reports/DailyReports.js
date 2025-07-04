@@ -64,10 +64,10 @@ export default function DailyReports() {
     setShowReportModal(true);
   };
 
-  const handleSaveReportWrapper = async (reportData) => {
+  const handleSaveReportWrapper = async (reportData, editingReport) => {
     try {
-      console.log('DailyReports: Starting save process for report...');
-      await handleSaveReport(reportData);
+      console.log('DailyReports: Starting save process for report...', { editingReport });
+      await handleSaveReport(reportData, editingReport);
       console.log('DailyReports: Report saved successfully, closing modal...');
       setShowReportModal(false);
       // Refresh the reports list to show the new/updated report

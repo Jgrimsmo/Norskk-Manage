@@ -1,0 +1,7 @@
+[
+  {
+    "origin": ["http://localhost:3000", "https://norskk-management.firebaseapp.com", "https://norskk-management.web.app"],
+    "method": ["GET", "HEAD"],
+    "maxAgeSeconds": 3600
+  }
+]

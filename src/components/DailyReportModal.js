@@ -362,8 +362,8 @@ export default function DailyReportModal({ show, onClose, report = null, onSave 
         submittedAt: new Date().toISOString()
       };
 
-      console.log('DailyReportModal: Calling onSave...');
-      await onSave(reportData);
+      console.log('DailyReportModal: Calling onSave...', { reportData, editingReport: report });
+      await onSave(reportData, report);
       console.log('DailyReportModal: Save completed successfully');
       onClose();
       setErrors({});
@@ -891,7 +891,6 @@ export default function DailyReportModal({ show, onClose, report = null, onSave 
                     const { storage } = await import('../Firebase/firebaseConfig');
                     console.log('✅ Firebase storage imported:', storage);
                     console.log('Storage app:', storage.app);
-                    console.log('Storage bucket:', storage._delegate._bucket);
                     
                     // Step 2: Test creating a storage reference
                     console.log('🔍 Step 2: Testing storage reference creation...');

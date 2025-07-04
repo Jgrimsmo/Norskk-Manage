@@ -1,0 +1,374 @@
+/* Windows Classic Dispatch & Scheduling CSS */
+
+.dispatch-container {
+  padding: 16px;
+  font-family: Tahoma, 'Segoe UI', Arial, sans-serif;
+  background: var(--color-background);
+  min-height: 100vh;
+  color: var(--color-primary-text);
+}
+
+.dispatch-container h1 {
+  color: var(--color-primary-text);
+  margin-bottom: 16px;
+  font-size: 18px;
+  font-weight: bold;
+  background: var(--color-header-background);
+  border: 2px outset #fff;
+  padding: 8px 16px;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #808080;
+}
+
+/* Controls Section */
+.dispatch-controls {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  align-items: center;
+  padding: 16px;
+  background: var(--color-card-background);
+  border: 2px inset var(--color-border-color);
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #808080;
+}
+
+.dispatch-controls select,
+.dispatch-controls input {
+  padding: 4px 6px;
+  border: 2px inset #fff;
+  font-size: 12px;
+  font-family: Tahoma, sans-serif;
+  background: var(--color-card-background);
+  color: var(--color-primary-text);
+}
+
+.dispatch-controls select:focus,
+.dispatch-controls input:focus {
+  outline: 1px dotted var(--color-primary-text);
+}
+
+.dispatch-controls select {
+  min-width: 200px;
+}
+
+.dispatch-controls input {
+  width: 200px;
+}
+
+/* Resource Lists */
+.crew-list,
+.equipment-list {
+  background: var(--color-card-background);
+  border: 2px inset var(--color-border-color);
+  padding: 16px;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #808080;
+}
+
+.crew-list h3,
+.equipment-list h3 {
+  margin: 0 0 12px 0;
+  color: var(--color-primary-text);
+  font-size: 14px;
+  font-weight: bold;
+  font-family: Tahoma, sans-serif;
+  background: var(--color-header-background);
+  padding: 6px 8px;
+  border: 2px outset #fff;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #808080;
+}
+
+.crew-card,
+.equipment-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  margin-bottom: 6px;
+  background: var(--color-card-background);
+  border: 2px outset var(--color-border-color);
+  font-family: Tahoma, sans-serif;
+  font-size: 12px;
+  cursor: grab;
+  transition: all 0.1s ease;
+}
+
+.crew-card:hover,
+.equipment-card:hover {
+  background: var(--color-button-hover);
+}
+
+.crew-card:active,
+.equipment-card:active {
+  border-style: inset;
+}
+
+.crew-card.assigned,
+.equipment-card.in-use {
+  opacity: 0.7;
+  cursor: not-allowed;
+  border-style: inset;
+}
+
+.crew-card .avatar,
+.equipment-card .icon {
+  font-size: 20px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-header-background);
+  border: 1px inset #fff;
+}
+
+.crew-info,
+.equipment-info {
+  flex: 1;
+}
+
+.crew-info .name,
+.equipment-info .name {
+  font-weight: bold;
+  color: var(--color-primary-text);
+  margin-bottom: 2px;
+  font-size: 12px;
+}
+
+.crew-info .role,
+.equipment-info .type {
+  color: var(--color-secondary-text);
+  margin-bottom: 2px;
+  font-size: 11px;
+}
+
+.crew-info .skills,
+.equipment-info .location {
+  color: var(--color-secondary-text);
+  font-size: 10px;
+  margin-bottom: 2px;
+}
+
+.crew-info .rating {
+  color: var(--color-warning);
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.crew-card .status,
+.equipment-card .status {
+  padding: 2px 6px;
+  background: var(--color-success);
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+  border: 1px outset #fff;
+}
+
+.crew-card .status.assigned,
+.equipment-card .status.in-use {
+  background: var(--color-warning);
+}
+
+/* Calendar Styles */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  background: var(--color-border-color);
+  border: 2px inset #fff;
+  min-height: 400px;
+}
+
+.calendar-day {
+  background: var(--color-card-background);
+  padding: 6px;
+  min-height: 400px;
+  position: relative;
+  border: 1px solid var(--color-border-color-light);
+}
+
+.calendar-day.today {
+  background: #f0f8ff;
+  border: 2px solid var(--color-info);
+}
+
+.calendar-day-header {
+  text-align: center;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--color-border-color-light);
+  background: var(--color-header-background);
+  margin: -6px -6px 8px -6px;
+  padding: 4px;
+}
+
+.calendar-day-name {
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--color-primary-text);
+  text-transform: uppercase;
+  font-family: Tahoma, sans-serif;
+}
+
+.calendar-day-number {
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 2px;
+  font-family: Tahoma, sans-serif;
+}
+
+.calendar-day-number.today {
+  color: var(--color-info);
+}
+
+/* Assignment Cards */
+.assignment-card {
+  padding: 4px;
+  margin-bottom: 2px;
+  background: #e6f3ff;
+  border: 1px inset var(--color-border-color);
+  font-size: 9px;
+  font-family: Tahoma, sans-serif;
+  cursor: pointer;
+}
+
+.assignment-card.equipment {
+  background: #f0fff0;
+}
+
+.assignment-info .resource-name {
+  font-weight: bold;
+  color: var(--color-primary-text);
+  margin-bottom: 1px;
+  font-size: 10px;
+}
+
+.assignment-info .project-name {
+  color: var(--color-secondary-text);
+  margin-bottom: 1px;
+  font-size: 9px;
+}
+
+.assignment-info .assignment-type {
+  color: white;
+  font-size: 8px;
+  font-weight: bold;
+  text-transform: uppercase;
+  background: var(--color-info);
+  padding: 1px 3px;
+  display: inline-block;
+}
+
+.assignment-info .assignment-type.equipment {
+  background: var(--color-success);
+}
+
+/* Buttons */
+.assign-btn {
+  background: var(--color-button-background);
+  color: var(--color-primary-text);
+  border: 2px outset #fff;
+  padding: 3px 6px;
+  font-size: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: Tahoma, sans-serif;
+  transition: all 0.1s ease;
+}
+
+.assign-btn:hover {
+  background: var(--color-button-hover);
+}
+
+.assign-btn:active {
+  border-style: inset;
+  background: var(--color-button-active);
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--color-card-background);
+  border: 2px outset #fff;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #808080;
+  padding: 16px;
+  min-width: 400px;
+  font-family: Tahoma, sans-serif;
+}
+
+.modal-header {
+  background: var(--color-header-background);
+  border: 2px outset #fff;
+  padding: 8px 12px;
+  margin: -16px -16px 16px -16px;
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--color-primary-text);
+}
+
+.modal-body {
+  margin-bottom: 16px;
+}
+
+.modal-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 2px inset #fff;
+  padding: 8px;
+}
+
+.modal-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  margin-bottom: 4px;
+  background: var(--color-card-background);
+  border: 1px solid var(--color-border-color);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.modal-item:hover {
+  background: var(--color-button-hover);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dispatch-controls {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .dispatch-controls select,
+  .dispatch-controls input {
+    width: 100%;
+    min-width: unset;
+  }
+  
+  .crew-card,
+  .equipment-card {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+

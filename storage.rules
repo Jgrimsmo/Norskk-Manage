@@ -1,0 +1,27 @@
+// Firebase Storage Security Rules for Norskk Management System
+// Copy these rules to your Firebase Console -> Storage -> Rules
+
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Allow read and write access to daily-reports photos
+    match /daily-reports/{reportId}/photos/{photoId} {
+      allow read, write: if true; // For development - make this more restrictive in production
+    }
+    
+    // Allow read and write access to test files
+    match /debug-test.txt {
+      allow read, write: if true; // For development testing
+    }
+    
+    match /test/{allPaths=**} {
+      allow read, write: if true; // For development testing
+    }
+    
+    // Default: deny all other access
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

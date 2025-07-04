@@ -32,10 +32,10 @@ export function useReportManagement() {
     }
   };
 
-  const handleSaveReport = async (reportData) => {
+  const handleSaveReport = async (reportData, editingReport = null) => {
     try {
-      console.log('handleSaveReport called with:', reportData);
-      const editingReport = reports.find(r => r.id === reportData.id);
+      console.log('handleSaveReport called with:', { reportData, editingReport });
+      console.log('DEBUG - Is editing:', !!editingReport);
       
       if (editingReport) {
         // Update existing report
@@ -45,6 +45,7 @@ export function useReportManagement() {
         let uploadedPhotos = [];
         if (reportData.photos && reportData.photos.length > 0) {
           console.log('Uploading photos for existing report, count:', reportData.photos.length);
+          console.log('DEBUG - Photos before upload:', reportData.photos.map(p => ({ name: p.name, hasFile: !!p.file, fileType: p.file?.constructor.name })));
           uploadedPhotos = await uploadPhotos(reportData.photos, editingReport.id);
         }
         
@@ -77,19 +78,20 @@ export function useReportManagement() {
         };
         
         console.log('Adding report to Firestore (without photos)');
-        const docRef = await addToCollection("dailyReports", newReportWithoutPhotos);
-        console.log('Report created with ID:', docRef.id);
+        const docId = await addToCollection("dailyReports", newReportWithoutPhotos);
+        console.log('Report created with ID:', docId);
         
         // Now upload photos with the real report ID
         let uploadedPhotos = [];
         if (photosToUpload.length > 0) {
           console.log('Uploading photos for new report, count:', photosToUpload.length);
+          console.log('DEBUG - Photos before upload:', photosToUpload.map(p => ({ name: p.name, hasFile: !!p.file, fileType: p.file?.constructor.name })));
           try {
-            uploadedPhotos = await uploadPhotos(photosToUpload, docRef.id);
+            uploadedPhotos = await uploadPhotos(photosToUpload, docId);
             console.log('Photos uploaded successfully:', uploadedPhotos.length);
             
             // Update the report with the photo URLs
-            await updateDocById("dailyReports", docRef.id, { photos: uploadedPhotos });
+            await updateDocById("dailyReports", docId, { photos: uploadedPhotos });
             console.log('Report updated with photo URLs');
           } catch (photoError) {
             console.error('Error uploading photos, but report was saved:', photoError);
@@ -97,7 +99,7 @@ export function useReportManagement() {
           }
         }
         
-        const finalReport = { ...newReportWithoutPhotos, id: docRef.id, photos: uploadedPhotos };
+        const finalReport = { ...newReportWithoutPhotos, id: docId, photos: uploadedPhotos };
         setReports([...reports, finalReport]);
         console.log('Report saved successfully:', finalReport.id);
       }

@@ -157,22 +157,29 @@ export const uploadPhoto = async (file, path) => {
       throw new Error('File size exceeds 5MB limit');
     }
     
+    // Check if storage is properly configured
+    if (!storage) {
+      throw new Error('Firebase Storage not configured');
+    }
+    
     const storageRef = ref(storage, path);
+    console.log('Storage reference created:', storageRef);
     
     // Create upload task with progress monitoring
     const uploadTask = uploadBytesResumable(storageRef, file);
     
     return new Promise((resolve, reject) => {
-      // Set a timeout for the upload
+      // Extend timeout to 60 seconds for larger files
       const timeout = setTimeout(() => {
+        console.log('Upload timeout, canceling...');
         uploadTask.cancel();
-        reject(new Error('Upload timeout after 30 seconds'));
-      }, 30000);
+        reject(new Error('Upload timeout after 60 seconds'));
+      }, 60000);
       
       uploadTask.on('state_changed',
         (snapshot) => {
           const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log('Upload progress:', progress + '%');
+          console.log('Upload progress:', Math.round(progress) + '%');
         },
         (error) => {
           clearTimeout(timeout);
@@ -186,6 +193,7 @@ export const uploadPhoto = async (file, path) => {
             console.log('Upload completed, URL:', downloadURL);
             resolve(downloadURL);
           } catch (urlError) {
+            console.error('Error getting download URL:', urlError);
             reject(urlError);
           }
         }

@@ -1,0 +1,183 @@
+// Firestore Security Rules for Norskk Management System
+// Copy these rules to your Firebase Console -> Firestore Database -> Rules
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && getUserRole() == 'admin';
+    }
+    
+    function isManager() {
+      return isAuthenticated() && getUserRole() in ['admin', 'manager'];
+    }
+    
+    function isForeman() {
+      return isAuthenticated() && getUserRole() in ['admin', 'manager', 'foreman'];
+    }
+    
+    function isWorkerOrAbove() {
+      return isAuthenticated() && getUserRole() in ['admin', 'manager', 'foreman', 'worker'];
+    }
+    
+    function isOwnerOrManager(resource) {
+      return isAuthenticated() && (
+        resource.data.userId == request.auth.uid || 
+        getUserRole() in ['admin', 'manager']
+      );
+    }
+    
+    function validateUserData(data) {
+      return data.keys().hasAll(['name', 'email', 'role']) &&
+             data.role in ['admin', 'manager', 'foreman', 'worker', 'viewer'] &&
+             data.name is string && data.name.size() > 0 &&
+             data.email is string && data.email.matches('.*@.*');
+    }
+    
+    // Users collection - Only admins can manage users
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin() && validateUserData(resource.data);
+      allow update: if isAdmin() && validateUserData(resource.data);
+      allow delete: if isAdmin();
+    }
+    
+    // Projects collection - Managers and above can manage
+    match /projects/{projectId} {
+      allow read: if isAuthenticated();
+      allow create: if isManager();
+      allow update: if isManager();
+      allow delete: if isAdmin();
+    }
+    
+    // Management Projects collection
+    match /managementProjects/{projectId} {
+      allow read: if isAuthenticated();
+      allow create: if isManager();
+      allow update: if isManager();
+      allow delete: if isAdmin();
+    }
+    
+    // Estimates and Scopes - Foreman and above can manage
+    match /estimates/{estimateId} {
+      allow read: if isAuthenticated();
+      allow create: if isForeman();
+      allow update: if isForeman();
+      allow delete: if isManager();
+    }
+    
+    match /scopes/{scopeId} {
+      allow read: if isAuthenticated();
+      allow create: if isForeman();
+      allow update: if isForeman();
+      allow delete: if isManager();
+      
+      // Scope items subcollection
+      match /items/{itemId} {
+        allow read: if isAuthenticated();
+        allow create: if isForeman();
+        allow update: if isForeman();
+        allow delete: if isForeman();
+      }
+    }
+    
+    // Item Database - Workers and above can read, managers can modify
+    match /items/{itemId} {
+      allow read: if isWorkerOrAbove();
+      allow create: if isManager();
+      allow update: if isManager();
+      allow delete: if isAdmin();
+    }
+    
+    // Crew Management - Foreman and above can manage
+    match /crew/{crewId} {
+      allow read: if isAuthenticated();
+      allow create: if isForeman();
+      allow update: if isForeman();
+      allow delete: if isManager();
+    }
+    
+    // Equipment Management - Foreman and above can manage
+    match /equipment/{equipmentId} {
+      allow read: if isAuthenticated();
+      allow create: if isForeman();
+      allow update: if isForeman();
+      allow delete: if isManager();
+    }
+    
+    // Time Tracking - Workers can create their own, managers can manage all
+    match /timeTracking/{entryId} {
+      allow read: if isAuthenticated();
+      allow create: if isWorkerOrAbove() && (
+        !('userId' in resource.data) || 
+        resource.data.userId == request.auth.uid ||
+        isManager()
+      );
+      allow update: if isOwnerOrManager(resource) || isManager();
+      allow delete: if isOwnerOrManager(resource) || isManager();
+    }
+    
+    // Daily Reports - Workers and above can create, managers can manage
+    match /dailyReports/{reportId} {
+      allow read: if isAuthenticated();
+      allow create: if isWorkerOrAbove();
+      allow update: if isOwnerOrManager(resource);
+      allow delete: if isManager();
+    }
+    
+    // FLHA Forms - All authenticated users can create, managers can manage
+    match /flhaForms/{formId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isOwnerOrManager(resource);
+      allow delete: if isManager();
+    }
+    
+    // Toolbox Forms - All authenticated users can create, managers can manage
+    match /toolboxForms/{formId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isOwnerOrManager(resource);
+      allow delete: if isManager();
+    }
+    
+    // Dispatch/Assignments - Foreman and above can manage
+    match /assignments/{assignmentId} {
+      allow read: if isAuthenticated();
+      allow create: if isForeman();
+      allow update: if isForeman();
+      allow delete: if isForeman();
+    }
+    
+    // System Settings - Admin only
+    match /settings/{settingId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    // Audit Logs - Read-only for managers, write for system only
+    match /auditLogs/{logId} {
+      allow read: if isManager();
+      allow create: if false; // Only server-side functions should create audit logs
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+    
+    // Default deny rule for any unmatched documents
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

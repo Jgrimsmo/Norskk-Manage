@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { db } from "../Firebase/firebaseConfig";
+import { db } from "../../services/firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 import "./Sidebar.css";
 
 export default function Sidebar({ isCollapsed, onToggleCollapse }) {
@@ -44,7 +44,7 @@ export default function Sidebar({ isCollapsed, onToggleCollapse }) {
     <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-header">
         <Link to="/" className="sidebar-logo-container">
-          <img src={require("../assets/logos/norskk-logo.png")} alt="Norskk Management Logo" className="sidebar-logo" />
+          <img src={require("../../assets/logos/norskk-logo.png")} alt="Norskk Management Logo" className="sidebar-logo" />
           {!isCollapsed && <span className="sidebar-title">Norskk Management</span>}
         </Link>
         <button 

@@ -111,17 +111,15 @@ export function useReportManagement() {
   };
 
   const handleDeleteReport = async (reportId) => {
-    if (window.confirm('Are you sure you want to delete this report?')) {
-      try {
-        await deleteDocById("dailyReports", reportId);
-        setReports(reports.filter(r => r.id !== reportId));
-        if (selectedReport?.id === reportId) {
-          setSelectedReport(null);
-        }
-      } catch (err) {
-        console.error("Error deleting report:", err);
-        setError("Failed to delete report. Please try again.");
+    try {
+      await deleteDocById("dailyReports", reportId);
+      setReports(reports.filter(r => r.id !== reportId));
+      if (selectedReport?.id === reportId) {
+        setSelectedReport(null);
       }
+    } catch (err) {
+      console.error("Error deleting report:", err);
+      throw new Error("Failed to delete report. Please try again.");
     }
   };
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import '../styles/page.css';
+import { useAuth } from '../../contexts/AuthContext';
+import '../../styles/page.css';
 import './Login.css';
 
 export default function Login() {
@@ -42,7 +42,7 @@ export default function Login() {
       <div className="login-box">
         <div className="login-header">
           <img 
-            src={require("../assets/logos/norskk-logo.png")} 
+            src={require("../../assets/logos/norskk-logo.png")} 
             alt="Norskk Management" 
             className="login-logo" 
           />

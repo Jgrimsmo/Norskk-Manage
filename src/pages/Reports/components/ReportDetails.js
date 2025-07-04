@@ -1,5 +1,5 @@
 import React from 'react';
-import { WEATHER_OPTIONS } from '../lib/constants/appConstants';
+import { WEATHER_OPTIONS } from '../../../lib/constants/appConstants';
 
 export default function ReportDetails({ report, onExportPDF }) {
   if (!report) {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import Layout from '../../components/Layout';
+import Layout from '../../components/layout/Layout';
 import { CONDITIONS, APPROVAL_STATUS, WEATHER_OPTIONS, FORM_FIELD_TYPES } from '../../lib/constants/appConstants';
 import '../../styles/page.css';
 import './FormBuilder.css';

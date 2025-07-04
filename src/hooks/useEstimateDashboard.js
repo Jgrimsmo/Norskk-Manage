@@ -1,6 +1,6 @@
 // Custom hook specifically for estimate dashboard functionality
 import { useState, useEffect } from 'react';
-import { fetchCollection, fetchSubcollection, addToCollection, updateDocById, deleteDocById } from '../../lib/utils/firebaseHelpers';
+import { fetchCollection, fetchSubcollection, addToCollection, updateDocById, deleteDocById } from '../lib/utils/firebaseHelpers';
 
 export function useEstimateDashboard(projectId) {
   const [scopes, setScopes] = useState([]);

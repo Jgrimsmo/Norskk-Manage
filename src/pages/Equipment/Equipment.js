@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import "../../styles/tables.css";
-import Layout from "../../components/Layout";
+import Layout from "../../components/layout/Layout";
 import "../ProjectDashboard/AddProjectModal.css";
 import { fetchCollection, addToCollection, updateDocById, deleteDocById } from "../../lib/utils/firebaseHelpers";
 
@@ -185,6 +185,7 @@ export default function EquipmentPage() {
     }, {});
   }, [equipment, typeFilter, filteredEquipment]);
 
+  // eslint-disable-next-line no-unused-vars
   const handleTypeFilterSelect = (type) => {
     setTypeFilter(type);
     setShowTypeFilter(false);

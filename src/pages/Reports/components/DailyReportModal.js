@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { fetchCollection } from '../lib/utils/firebaseHelpers';
-import { WEATHER_OPTIONS } from '../lib/constants/appConstants';
-import { useWeatherIntegration } from '../hooks/useWeatherIntegration';
+import { fetchCollection } from '../../../lib/utils/firebaseHelpers';
+import { WEATHER_OPTIONS } from '../../../lib/constants/appConstants';
+import { useWeatherIntegration } from '../../../hooks/useWeatherIntegration';
 
 // Debug function to make testing easier
 window.debugFirebaseStorage = async () => {
@@ -9,7 +9,7 @@ window.debugFirebaseStorage = async () => {
   try {
     // Test Firebase imports
     console.log('📦 Testing Firebase imports...');
-    const { storage } = await import('../Firebase/firebaseConfig');
+    const { storage } = await import('../../../services/firebaseConfig');
     const { ref, uploadBytesResumable, getDownloadURL } = await import('firebase/storage');
     console.log('✅ Firebase modules imported successfully');
     
@@ -888,7 +888,7 @@ export default function DailyReportModal({ show, onClose, report = null, onSave 
                   // Step 1: Check if Firebase Storage is configured
                   try {
                     console.log('🔍 Step 1: Testing Firebase configuration...');
-                    const { storage } = await import('../Firebase/firebaseConfig');
+                    const { storage } = await import('../../../services/firebaseConfig');
                     console.log('✅ Firebase storage imported:', storage);
                     console.log('Storage app:', storage.app);
                     

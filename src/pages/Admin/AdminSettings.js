@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import Layout from '../../components/Layout';
+import Layout from '../../components/layout/Layout';
 import '../../styles/page.css';
 import './AdminSettings.css';
 

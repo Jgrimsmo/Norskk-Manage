@@ -1,7 +1,7 @@
 // Custom hook for project data management
 import { useState, useEffect } from 'react';
 import { where } from 'firebase/firestore';
-import { fetchCollection, queryCollection } from '../../lib/utils/firebaseHelpers';
+import { fetchCollection, queryCollection } from '../lib/utils/firebaseHelpers';
 
 export function useProjectData(projectIdOrSlug, useSlug = false) {
   const [project, setProject] = useState(null);

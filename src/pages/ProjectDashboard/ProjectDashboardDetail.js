@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { fetchDocById, updateDocById } from "../../lib/utils/firebaseHelpers";
-import Layout from "../../components/Layout";
+import Layout from "../../components/layout/Layout";
 import "../../styles/page.css";
 import "../../styles/tables.css";
 

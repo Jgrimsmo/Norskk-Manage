@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Layout from "../../components/Layout";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import Layout from "../../components/layout/Layout";
+import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import { useProjectManagement } from "../../hooks/useProjectManagement";
 import { fetchCollection, addToCollection, updateDocById, deleteDocById } from "../../lib/utils/firebaseHelpers";
 import "../../styles/page.css";

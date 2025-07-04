@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
-import DailyReportPDF from '../../components/ReportPDF/DailyReportPDF';
+import DailyReportPDF from './components/ReportPDF/DailyReportPDF';
 import './DailyReportPDFPreview.css';
 
 // Add Buffer polyfill for browser compatibility
@@ -82,6 +82,11 @@ export default function DailyReportPDFPreview() {
           {/* Photo Click Info */}
           {report.photos && report.photos.length > 0 && (
             <div className="photo-click-info">
+              {report.photos.some(photo => photo.pdfReady === false) && (
+                <span style={{ fontSize: '12px', color: '#dc3545', marginRight: '16px' }}>
+                  ⚠️ Some images may not display due to CORS restrictions
+                </span>
+              )}
               <span style={{ fontSize: '12px', color: '#6c757d', marginRight: '16px' }}>
                 📷 Images are clickable in the downloaded PDF
               </span>

@@ -3,9 +3,9 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import SidebarLayout from "./components/SidebarLayout";
-import Login from "./components/Login";
-import LoadingSpinner from "./components/LoadingSpinner";
+import SidebarLayout from "./components/layout/SidebarLayout";
+import Login from "./components/ui/Login";
+import LoadingSpinner from "./components/ui/LoadingSpinner";
 
 // Import theme CSS
 import "./styles/theme.css";
@@ -15,9 +15,9 @@ import ItemDatabase from "./pages/ItemDatabase/ItemDatabase";
 import TimeTracking from "./pages/TimeTracking/TimeTracking";
 import ProjectDashboardDetail from "./pages/ProjectDashboard/ProjectDashboardDetail";
 import ProjectDashboard from "./pages/ProjectDashboard/ProjectDashboard";
-import ProjectEstimatePage from "./pages/Estimate/ProjectEstimatePage";
+import ProjectEstimatePage from "./pages/Estimates/ProjectEstimatePage";
 import EstimateDashboard from "./pages/EstimateDashboard/EstimateDashboard";
-import EquipmentPage from "./pages/Equipment/equipment";
+import EquipmentPage from "./pages/Equipment";
 import DispatchPage from "./pages/Dispatch/dispatch_calendar";
 import CrewPage from "./pages/Crew/crew";
 import Settings from "./pages/Settings/Settings";
@@ -31,6 +31,7 @@ import ConstructionCalculator from "./pages/Tools/ConstructionCalculator";
 import AdminSettings from "./pages/Admin/AdminSettings";
 import DailyReports from "./pages/Reports/DailyReports";
 import DailyReportPDFPreview from "./pages/Reports/DailyReportPDFPreview";
+import DailyReportEdit from "./pages/Reports/DailyReportEdit";
 import FLHAForms from "./pages/Forms/FLHAForms";
 import ToolboxForms from "./pages/Forms/ToolboxForms";
 import FormBuilder from "./pages/Forms/FormBuilder";
@@ -50,6 +51,7 @@ function AppContent() {
     <Routes>
       {/* Full-screen routes (no sidebar) */}
       <Route path="/daily-reports/preview" element={<DailyReportPDFPreview />} />
+      <Route path="/daily-reports/edit" element={<DailyReportEdit />} />
       
       {/* Regular routes (with sidebar) */}
       <Route path="/*" element={

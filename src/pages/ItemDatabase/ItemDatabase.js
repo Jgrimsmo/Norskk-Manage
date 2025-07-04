@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import Layout from "../../components/Layout";
+import Layout from "../../components/layout/Layout";
 import "../../styles/page.css";
 import "../../styles/tables.css";
-import { db } from "../../Firebase/firebaseConfig";
+import { db } from "../../services/firebaseConfig";
 import { collection, doc, onSnapshot } from "firebase/firestore";
 import { fetchCollection, addToCollection, updateDocById, deleteDocById } from "../../lib/utils/firebaseHelpers";
 

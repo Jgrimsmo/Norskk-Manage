@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { fetchCollection, fetchSubcollection, addToSubcollection, updateSubcollectionDoc, deleteSubcollectionDoc } from "../../lib/utils/firebaseHelpers";
 import '../../styles/page.css';
 import '../../styles/tables.css';
-import Layout from "../../components/Layout";
+import Layout from "../../components/layout/Layout";
 
 export default function ScopeEstimateClassic({ projectId, scopeId, onBack, onScopeNavigation }) {
   const [scope, setScope] = useState(null);

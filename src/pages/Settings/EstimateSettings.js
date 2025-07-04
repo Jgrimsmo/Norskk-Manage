@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Layout from "../../components/Layout";
+import Layout from "../../components/layout/Layout";
 import "../../styles/page.css";
 import "../../styles/tables.css";
 import { fetchDocById, setDocById } from "../../lib/utils/firebaseHelpers";

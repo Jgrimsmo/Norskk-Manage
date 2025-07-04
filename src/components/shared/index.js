@@ -1,2 +1,2 @@
 // Export all shared components
-export { default as ConfirmationDialog } from './ConfirmationDialog';
+// Note: Add shared components here as they are created

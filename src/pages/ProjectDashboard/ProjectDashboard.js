@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/tables.css";
 import "../../styles/page.css";
 import "./AddProjectModal.css";
-import Layout from "../../components/Layout";
+import Layout from "../../components/layout/Layout";
 
 export default function ProjectDashboard() {
   const [projects, setProjects] = useState([]);

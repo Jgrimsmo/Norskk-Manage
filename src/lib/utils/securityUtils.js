@@ -1,5 +1,5 @@
 // Security utilities for the Norskk Management System
-import { auth } from '../Firebase/firebaseConfig';
+import { auth } from '../services/firebaseConfig';
 
 // Input validation and sanitization
 export const SecurityUtils = {

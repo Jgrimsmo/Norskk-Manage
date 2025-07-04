@@ -1,6 +1,6 @@
 // Custom hook for form state management with validation
 import { useState, useCallback } from 'react';
-import { validateForm } from '../../lib/validators/formValidators';
+import { validateForm } from '../lib/validators/formValidators';
 
 export function useFormData(initialData = {}, validationRules = {}) {
   const [formData, setFormData] = useState(initialData);

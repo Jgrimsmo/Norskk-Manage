@@ -6,15 +6,15 @@ import "../../styles/page.css";
 import "../../styles/tables.css"; // Shared table styles
 import "../../styles/buttons.css"; // Importing buttons.css for button styles
 import "../../components/shared/shared.css";
-import ScopeEstimateClassic from "../Estimate/ScopeEstimateClassic";
-import Layout from "../../components/Layout";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import ScopeEstimateClassic from "../Estimates/ScopeEstimateClassic";
+import Layout from "../../components/layout/Layout";
+import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import ProposalModal from "./ProposalModal";
 import { 
   useProjectData, 
   useEstimateDashboard, 
   useFormData
-} from "../../hooks/pages";
+} from "../../hooks";
 // Removed unused shared component imports
 
 export default function EstimateDashboard({ useSlug }) {

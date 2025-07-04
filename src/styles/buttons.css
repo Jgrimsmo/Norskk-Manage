@@ -1,5 +1,78 @@
 /* buttons.css - Unified Windows Classic Style Buttons */
 
+/* Standard button base styles */
+.btn {
+  font-family: Tahoma, sans-serif;
+  font-size: 12px;
+  padding: 6px 12px;
+  color: #000;
+  background: #d4d0c8;
+  border: 2px outset #fff;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #808080;
+  cursor: pointer;
+  transition: all 0.1s ease-in-out;
+  -webkit-user-select: none;
+  user-select: none;
+  outline: none;
+  text-decoration: none;
+  display: inline-block;
+  margin: 2px;
+}
+
+.btn:hover {
+  background: #c0c0c0;
+}
+
+.btn:active {
+  border: 2px inset #fff;
+  box-shadow: inset -1px -1px 0 #fff, inset 1px 1px 0 #808080;
+  background: #b0b0b0;
+}
+
+.btn:focus {
+  outline: 1px dotted #000;
+}
+
+/* Button size variants */
+.btn-sm {
+  font-size: 11px;
+  padding: 4px 8px;
+}
+
+/* Button color variants */
+.btn-primary {
+  background: #0d6efd;
+  color: #fff;
+  border-color: #0b5ed7;
+}
+
+.btn-primary:hover {
+  background: #0b5ed7;
+  border-color: #0a58ca;
+}
+
+.btn-primary:active {
+  background: #0a58ca;
+  border-color: #0a53be;
+}
+
+.btn-danger {
+  background: #dc3545;
+  color: #fff;
+  border-color: #bb2d3b;
+}
+
+.btn-danger:hover {
+  background: #bb2d3b;
+  border-color: #b02a37;
+}
+
+.btn-danger:active {
+  background: #b02a37;
+  border-color: #a52834;
+}
+
+/* Legacy classic button styles */
 .classic-button {
   font-family: Tahoma, sans-serif;
   font-size: 12px;

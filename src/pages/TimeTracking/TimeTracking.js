@@ -4,7 +4,7 @@ import "../../styles/tables.css";
 import "../../styles/page.css";
 import "./TimeTrackingPDFPreview.css";
 import "./TimeTracking.css";
-import Layout from "../../components/Layout";
+import Layout from "../../components/layout/Layout";
 import { fetchCollection } from "../../lib/utils/firebaseHelpers";
 import { useAuth } from "../../contexts/AuthContext";
 import { PERMISSIONS } from "../../contexts/AuthContext";

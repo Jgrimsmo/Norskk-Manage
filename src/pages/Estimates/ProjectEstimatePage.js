@@ -7,9 +7,9 @@ import { Link } from "react-router-dom";
 import '../../styles/tables.css';
 import '../EstimateDashboard/AddEstimateModal.css';
 import '../../styles/page.css';
-import Layout from "../../components/Layout";
-import LoadingSpinner from "../../components/LoadingSpinner";
-import { ToastContainer } from "../../components/Toast";
+import Layout from "../../components/layout/Layout";
+import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import { ToastContainer } from "../../components/shared/Toast";
 import { useToast } from "../../hooks/useToast";
 
 function slugify(text) {

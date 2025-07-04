@@ -2,7 +2,7 @@
 
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from "firebase/storage";
-import { db, storage } from "../../Firebase/firebaseConfig";
+import { db, storage } from "../../services/firebaseConfig";
 
 // ───── Read Collection ─────
 export const fetchCollection = async (collectionName) => {
@@ -339,7 +339,7 @@ if (typeof window !== 'undefined') {
     console.log('🧪 Running simple storage test...');
     try {
       // Test if Firebase Storage is accessible
-      const { storage } = await import('../../Firebase/firebaseConfig');
+      const { storage } = await import('../../services/firebaseConfig');
       const { ref, uploadBytesResumable, getDownloadURL } = await import('firebase/storage');
       
       console.log('✅ Firebase modules loaded successfully');

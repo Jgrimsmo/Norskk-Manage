@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
-import { fetchCollection } from "../lib/utils/firebaseHelpers";
-import Layout from "../components/Layout";
-import "../styles/page.css";
-import "../styles/tables.css";
+import { useAuth } from "../../contexts/AuthContext";
+import { fetchCollection } from "../../lib/utils/firebaseHelpers";
+import Layout from "../../components/layout/Layout";
+import "../../styles/page.css";
+import "../../styles/tables.css";
 import "./Home.css";
 
 export default function Home() {

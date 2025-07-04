@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import "../../styles/tables.css";
-import Layout from "../../components/Layout";
+import Layout from "../../components/layout/Layout";
 import { fetchCollection, addToCollection, updateDocById, deleteDocById } from "../../lib/utils/firebaseHelpers";
 
 // Predefined roles for dropdown

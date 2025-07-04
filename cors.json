@@ -1,7 +1,14 @@
 [
   {
-    "origin": ["http://localhost:3000", "https://norskk-management.firebaseapp.com", "https://norskk-management.web.app"],
-    "method": ["GET", "HEAD"],
+    "origin": [
+      "http://localhost:3000",
+      "https://norskk-management.firebaseapp.com",
+      "https://norskk-management.web.app",
+      "https://*.app.github.dev",
+      "https://*.preview.app.github.dev"
+    ],
+    "method": ["GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"],
+    "responseHeader": ["Content-Type", "Access-Control-Allow-Origin", "Authorization"],
     "maxAgeSeconds": 3600
   }
 ]

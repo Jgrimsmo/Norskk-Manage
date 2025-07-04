@@ -208,15 +208,12 @@ const DailyReportPDF = ({ reportData }) => {
     project: reportData?.project || 'No project specified',
     supervisor: reportData?.supervisor || 'No supervisor specified',
     date: reportData?.date || new Date().toISOString().split('T')[0],
-    weather: reportData?.weather || 'Sunny',
-    temperature: reportData?.temperature || 'Not recorded',
     workersOnSite: reportData?.workersOnSite || 0,
     workCompleted: reportData?.workCompleted || 'No work details provided',
-    workPlanned: reportData?.workPlanned || 'No planning details provided',
-    safetyIncidents: reportData?.safetyIncidents || '',
     issuesDelays: reportData?.issuesDelays || '',
     equipmentUsed: reportData?.equipmentUsed || [],
     selectedCrewMembers: reportData?.selectedCrewMembers || [],
+    selectedEquipment: reportData?.selectedEquipment || [],
     photos: reportData?.photos || [],
     status: reportData?.status || 'draft',
     submittedAt: reportData?.submittedAt || null
@@ -267,16 +264,8 @@ const DailyReportPDF = ({ reportData }) => {
             <Text style={styles.infoValue}>{safeReport.supervisor}</Text>
           </View>
           <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>Weather:</Text>
-            <Text style={styles.infoValue}>{safeReport.weather}</Text>
-          </View>
-          <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>Temperature:</Text>
-            <Text style={styles.infoValue}>{safeReport.temperature}</Text>
-          </View>
-          <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>Workers:</Text>
-            <Text style={styles.infoValue}>{safeReport.workersOnSite}</Text>
+            <Text style={styles.infoLabel}>Number of Crew Members:</Text>
+            <Text style={styles.infoValue}>{safeReport.selectedCrewMembers.length}</Text>
           </View>
           
           {/* Crew Members */}
@@ -299,28 +288,26 @@ const DailyReportPDF = ({ reportData }) => {
           <Text style={styles.textContent}>{safeReport.workCompleted}</Text>
         </View>
         <View style={styles.textSection}>
-          <Text style={styles.textLabel}>Work Planned for Tomorrow:</Text>
-          <Text style={styles.textContent}>{safeReport.workPlanned}</Text>
-        </View>
-
-        {/* Safety & Issues */}
-        <Text style={styles.sectionTitle}>Safety & Issues</Text>
-        <View style={styles.textSection}>
-          <Text style={styles.textLabel}>Safety Incidents / Near Misses:</Text>
-          <Text style={styles.textContent}>{safeReport.safetyIncidents || 'None reported'}</Text>
-        </View>
-        <View style={styles.textSection}>
           <Text style={styles.textLabel}>Issues or Delays:</Text>
           <Text style={styles.textContent}>{safeReport.issuesDelays || 'None reported'}</Text>
         </View>
 
         {/* Equipment */}
-        {safeReport.equipmentUsed && safeReport.equipmentUsed.length > 0 && (
+        {((safeReport.selectedEquipment && safeReport.selectedEquipment.length > 0) || 
+          (safeReport.equipmentUsed && safeReport.equipmentUsed.length > 0)) && (
           <>
             <Text style={styles.sectionTitle}>Equipment Used</Text>
             <View style={styles.equipmentList}>
-              {safeReport.equipmentUsed.map((equipment, index) => (
-                <Text key={index} style={styles.equipmentItem}>
+              {/* Display selectedEquipment (new format) first */}
+              {safeReport.selectedEquipment && safeReport.selectedEquipment.map((equipment, index) => (
+                <Text key={`selected-${index}`} style={styles.equipmentItem}>
+                  • {equipment.name} ({equipment.type})
+                </Text>
+              ))}
+              {/* Fallback to old equipmentUsed format if no selectedEquipment */}
+              {(!safeReport.selectedEquipment || safeReport.selectedEquipment.length === 0) && 
+               safeReport.equipmentUsed && safeReport.equipmentUsed.map((equipment, index) => (
+                <Text key={`legacy-${index}`} style={styles.equipmentItem}>
                   • {equipment.name || equipment}
                 </Text>
               ))}
@@ -343,21 +330,74 @@ const DailyReportPDF = ({ reportData }) => {
           </Text>
           
           <View style={styles.photosSection}>
-            {safeReport.photos.map((photo, index) => (
-              <View key={index} style={styles.photoContainer}>
-                <Link src={photo.url}>
-                  <Image 
-                    style={styles.photo} 
-                    src={photo.url}
-                    cache={false}
-                  />
-                </Link>
-                <Text style={styles.photoCaption}>{photo.name}</Text>
-                <Text style={styles.photoMeta}>
-                  Image {index + 1} of {safeReport.photos.length}
-                </Text>
-              </View>
-            ))}
+            {safeReport.photos.map((photo, index) => {
+              // Debug photo data
+              console.log(`PDF Photo ${index}:`, {
+                name: photo.name,
+                urlType: photo.url?.startsWith('data:') ? 'base64' : 
+                        photo.url?.startsWith('http') ? 'firebase' : 
+                        photo.url?.startsWith('blob:') ? 'blob' : 'none',
+                urlLength: photo.url?.length || 0,
+                pdfReady: photo.pdfReady,
+                hasOriginalUrl: !!photo.originalUrl
+              });
+              
+              // Show placeholder for photos that couldn't be converted for PDF
+              if (!photo.url || photo.pdfReady === false) {
+                return (
+                  <View key={index} style={styles.photoContainer}>
+                    <View style={[styles.photo, { 
+                      backgroundColor: '#f8f9fa', 
+                      alignItems: 'center', 
+                      justifyContent: 'center',
+                      border: '1px dashed #dee2e6',
+                      padding: 20
+                    }]}>
+                      <Text style={{ color: '#6c757d', fontSize: 10, textAlign: 'center', marginBottom: 4 }}>
+                        📷 Image not available in PDF
+                      </Text>
+                      <Text style={{ color: '#6c757d', fontSize: 8, textAlign: 'center' }}>
+                        {photo.originalUrl ? 'CORS restriction - view in web form' : 'Image could not be loaded'}
+                      </Text>
+                    </View>
+                    <Text style={styles.photoCaption}>{photo.name}</Text>
+                    <Text style={styles.photoMeta}>
+                      Image {index + 1} of {safeReport.photos.length}
+                      {photo.originalUrl && (
+                        <Text style={{ fontSize: 8 }}> • Available in web version</Text>
+                      )}
+                    </Text>
+                  </View>
+                );
+              }
+              
+              return (
+                <View key={index} style={styles.photoContainer}>
+                  {photo.originalUrl ? (
+                    <Link src={photo.originalUrl}>
+                      <Image 
+                        style={styles.photo} 
+                        src={photo.url}
+                        cache={false}
+                        onError={() => console.warn(`Failed to load image: ${photo.name}`)}
+                      />
+                    </Link>
+                  ) : (
+                    <Image 
+                      style={styles.photo} 
+                      src={photo.url}
+                      cache={false}
+                      onError={() => console.warn(`Failed to load image: ${photo.name}`)}
+                    />
+                  )}
+                  <Text style={styles.photoCaption}>{photo.name}</Text>
+                  <Text style={styles.photoMeta}>
+                    Image {index + 1} of {safeReport.photos.length}
+                    {photo.pdfReady === false && ' (⚠️ May not display properly)'}
+                  </Text>
+                </View>
+              );
+            })}
           </View>
 
           {/* Page Number */}

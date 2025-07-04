@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import Layout from '../../components/Layout';
 import DailyReportModal from '../../components/DailyReportModal';
-import PDFPreviewModal from '../../components/PDFPreviewModal';
 import ReportList from '../../components/ReportList';
 import ReportDetails from '../../components/ReportDetails';
 import ReportFilters from '../../components/ReportFilters';
@@ -11,7 +11,8 @@ import '../../styles/page.css';
 import './DailyReports.css';
 
 export default function DailyReports() {
-  const { user, hasPermission, PERMISSIONS } = useAuth();
+  const navigate = useNavigate();
+  const { hasPermission, PERMISSIONS } = useAuth();
   const {
     selectedReport,
     setSelectedReport,
@@ -22,12 +23,20 @@ export default function DailyReports() {
     uniqueProjects,
     filteredReports,
     handleSaveReport,
-    handleDeleteReport
+    handleDeleteReport,
+    loadReports
   } = useReportManagement();
 
   const [showReportModal, setShowReportModal] = useState(false);
   const [editingReport, setEditingReport] = useState(null);
-  const [showPDFPreview, setShowPDFPreview] = useState(false);
+
+  const handleExportPDF = () => {
+    if (selectedReport) {
+      navigate('/daily-reports/preview', { 
+        state: { report: selectedReport } 
+      });
+    }
+  };
 
   const canCreateReports = hasPermission(PERMISSIONS.CREATE_REPORTS);
   const canViewReports = hasPermission(PERMISSIONS.VIEW_REPORTS);
@@ -55,9 +64,21 @@ export default function DailyReports() {
     setShowReportModal(true);
   };
 
-  const handleSaveReportWrapper = (reportData) => {
-    handleSaveReport(reportData);
-    setShowReportModal(false);
+  const handleSaveReportWrapper = async (reportData) => {
+    try {
+      console.log('DailyReports: Starting save process for report...');
+      await handleSaveReport(reportData);
+      console.log('DailyReports: Report saved successfully, closing modal...');
+      setShowReportModal(false);
+      // Refresh the reports list to show the new/updated report
+      console.log('DailyReports: Refreshing reports list...');
+      await loadReports();
+      console.log('DailyReports: Reports list refreshed');
+    } catch (error) {
+      console.error('DailyReports: Error in save wrapper:', error);
+      // Don't close modal so user can try again
+      alert('Failed to save report: ' + (error.message || 'Unknown error'));
+    }
   };
 
   return (
@@ -86,7 +107,7 @@ export default function DailyReports() {
 
           <ReportDetails
             report={selectedReport}
-            onExportPDF={() => setShowPDFPreview(true)}
+            onExportPDF={handleExportPDF}
           />
         </div>
       </div>
@@ -96,12 +117,6 @@ export default function DailyReports() {
         onClose={() => setShowReportModal(false)}
         report={editingReport}
         onSave={handleSaveReportWrapper}
-      />
-      
-      <PDFPreviewModal
-        show={showPDFPreview}
-        onClose={() => setShowPDFPreview(false)}
-        report={selectedReport}
       />
     </Layout>
   );

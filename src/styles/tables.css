@@ -17,7 +17,7 @@ table.norskk-table {
   table-layout: fixed;
   background-color: #fff;
   color: #222;
-  font-size: 14px;
+  font-size: 12px; /* Reduced from 14px */
   margin-top: 14px; /* Added spacing above table */
   border: 1px solid #808080; /* Add border when not in table-section */
   border-radius: 4px; /* Add border radius for standalone tables */
@@ -33,9 +33,9 @@ table.norskk-table th,
 
 table.norskk-table td {
   border: 1.5px solid #808080;
-  padding: 3px 10px;
+  padding: 2px 8px; /* Reduced from 3px 10px */
   text-align: left;
-  font-size: 14px;
+  font-size: 12px; /* Reduced from 14px */
 }
 
 table.norskk-table th {
@@ -65,8 +65,8 @@ select.table-input,
 textarea.table-input {
   width: 100%;
   box-sizing: border-box;
-  padding: 4px 6px;
-  font-size: 13px;
+  padding: 3px 5px; /* Reduced from 4px 6px */
+  font-size: 11px; /* Reduced from 13px */
   border: 1px inset #b0b0b0;
   background: #f8f8f8;
   color: #222;
@@ -78,6 +78,15 @@ textarea.table-input:focus {
   border: 2px inset #003399;
   background: #e4eaff;
   outline: none;
+}
+
+/* Input fields within table cells */
+table.norskk-table input {
+  font-size: 11px;
+  padding: 2px 4px;
+  border: 1px inset #b0b0b0;
+  background: #f8f8f8;
+  color: #222;
 }
 
 .filter-row {
@@ -160,10 +169,9 @@ td.actions .classic-button {
   white-space: nowrap;
 }
 
-/* Prevent left spacing conflicts */
-body, main, .main-content, .page-container, .content-wrapper {
+/* Prevent left margin conflicts but allow padding for spacing */
+body, main, .page-container, .content-wrapper {
   margin-left: 0;
-  padding-left: 0 !important;
 }
 
 /* Empty state styling for consistent table empty messages */

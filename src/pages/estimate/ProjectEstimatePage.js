@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useMemo } from "react";
 import { serverTimestamp } from "firebase/firestore";
 import { fetchCollection, addToCollection, deleteDocById, fetchSubcollection, updateDocById } from "../../lib/utils/firebaseHelpers";
 import { formatDate } from "../../lib/utils/dateUtils";
-import { PROJECT_STATUS, ESTIMATE_STATUS_OPTIONS } from "../../lib/constants/appConstants";
+import { ESTIMATE_STATUS_OPTIONS } from "../../lib/constants/appConstants";
 import { Link } from "react-router-dom";
 import '../../styles/tables.css';
 import '../EstimateDashboard/AddEstimateModal.css';

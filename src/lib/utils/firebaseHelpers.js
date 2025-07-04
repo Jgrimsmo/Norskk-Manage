@@ -1,7 +1,8 @@
 // src/utils/firebaseHelpers.js
 
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
-import { db } from "../../Firebase/firebaseConfig";
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from "firebase/storage";
+import { db, storage } from "../../Firebase/firebaseConfig";
 
 // ───── Read Collection ─────
 export const fetchCollection = async (collectionName) => {
@@ -146,3 +147,236 @@ export const queryCollection = async (collectionName, ...queryConstraints) => {
     throw error;
   }
 };
+
+// ───── Photo Upload Functions ─────
+export const uploadPhoto = async (file, path) => {
+  try {
+    console.log('Uploading photo to path:', path, 'Size:', file.size);
+    
+    if (file.size > 5 * 1024 * 1024) {
+      throw new Error('File size exceeds 5MB limit');
+    }
+    
+    const storageRef = ref(storage, path);
+    
+    // Create upload task with progress monitoring
+    const uploadTask = uploadBytesResumable(storageRef, file);
+    
+    return new Promise((resolve, reject) => {
+      // Set a timeout for the upload
+      const timeout = setTimeout(() => {
+        uploadTask.cancel();
+        reject(new Error('Upload timeout after 30 seconds'));
+      }, 30000);
+      
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log('Upload progress:', progress + '%');
+        },
+        (error) => {
+          clearTimeout(timeout);
+          console.error('Upload error:', error);
+          reject(error);
+        },
+        async () => {
+          clearTimeout(timeout);
+          try {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            console.log('Upload completed, URL:', downloadURL);
+            resolve(downloadURL);
+          } catch (urlError) {
+            reject(urlError);
+          }
+        }
+      );
+    });
+  } catch (error) {
+    console.error('Error uploading photo:', error);
+    throw error;
+  }
+};
+
+export const uploadPhotos = async (photos, reportId) => {
+  try {
+    console.log('uploadPhotos called with:', { photosCount: photos?.length || 0, reportId });
+    
+    if (!photos || photos.length === 0) {
+      console.log('No photos to upload');
+      return [];
+    }
+    
+    const uploadPromises = photos.map(async (photo, index) => {
+      console.log(`Processing photo ${index}:`, photo);
+      
+      if (photo.file && photo.file instanceof File) {
+        // New photo to upload
+        console.log(`Uploading new photo ${index}:`, photo.name);
+        const fileName = `${Date.now()}_${index}_${photo.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+        const path = `daily-reports/${reportId}/photos/${fileName}`;
+        
+        try {
+          const url = await uploadPhoto(photo.file, path);
+          console.log(`Photo ${index} uploaded successfully:`, url);
+          return {
+            name: photo.name,
+            url: url,
+            path: path
+          };
+        } catch (uploadError) {
+          console.error(`Failed to upload photo ${index}:`, uploadError);
+          throw uploadError;
+        }
+      } else if (photo.url) {
+        // Existing photo (already uploaded)
+        console.log(`Using existing photo ${index}:`, photo.url);
+        return {
+          name: photo.name,
+          url: photo.url,
+          path: photo.path || `daily-reports/${reportId}/photos/${photo.name}`
+        };
+      } else {
+        console.warn(`Photo ${index} has no file or URL, skipping:`, photo);
+        return null;
+      }
+    });
+
+    const results = await Promise.all(uploadPromises);
+    const validResults = results.filter(result => result !== null);
+    console.log('All photos processed, valid results:', validResults.length);
+    return validResults;
+  } catch (error) {
+    console.error('Error uploading photos:', error);
+    throw error;
+  }
+};
+
+export const deletePhoto = async (path) => {
+  try {
+    const storageRef = ref(storage, path);
+    await deleteObject(storageRef);
+  } catch (error) {
+    console.error('Error deleting photo:', error);
+    throw error;
+  }
+};
+
+// ───── Test Functions (for debugging) ─────
+export const testFirebaseStorage = async () => {
+  try {
+    console.log('Testing Firebase Storage connection...');
+    
+    // Create a simple test file
+    const testData = new Blob(['Hello Firebase Storage!'], { type: 'text/plain' });
+    const testFile = new File([testData], 'test.txt', { type: 'text/plain' });
+    
+    const testPath = `test/${Date.now()}_test.txt`;
+    const storageRef = ref(storage, testPath);
+    
+    console.log('Uploading test file to:', testPath);
+    const uploadTask = uploadBytesResumable(storageRef, testFile);
+    
+    return new Promise((resolve, reject) => {
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log('Test upload progress:', progress + '%');
+        },
+        (error) => {
+          console.error('Test upload error:', error);
+          reject(error);
+        },
+        async () => {
+          try {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            console.log('Test upload completed, URL:', downloadURL);
+            resolve(downloadURL);
+          } catch (urlError) {
+            console.error('Error getting download URL:', urlError);
+            reject(urlError);
+          }
+        }
+      );
+    });
+  } catch (error) {
+    console.error('Test Firebase Storage error:', error);
+    throw error;
+  }
+};
+
+export const testPhotoUpload = async (file) => {
+  try {
+    console.log('Testing photo upload with file:', file);
+    const testReportId = 'test-report-' + Date.now();
+    const result = await uploadPhotos([{
+      name: file.name,
+      file: file,
+      url: URL.createObjectURL(file)
+    }], testReportId);
+    console.log('Test photo upload result:', result);
+    return result;
+  } catch (error) {
+    console.error('Test photo upload error:', error);
+    throw error;
+  }
+};
+
+// Make test functions available globally for debugging
+if (typeof window !== 'undefined') {
+  window.testFirebaseStorage = testFirebaseStorage;
+  window.testPhotoUpload = testPhotoUpload;
+  
+  // Simple test function that doesn't require imports
+  window.simpleStorageTest = async () => {
+    console.log('🧪 Running simple storage test...');
+    try {
+      // Test if Firebase Storage is accessible
+      const { storage } = await import('../../Firebase/firebaseConfig');
+      const { ref, uploadBytesResumable, getDownloadURL } = await import('firebase/storage');
+      
+      console.log('✅ Firebase modules loaded successfully');
+      
+      // Create test data
+      const testData = new Blob(['Hello from simple test!'], { type: 'text/plain' });
+      const testFile = new File([testData], 'simple-test.txt', { type: 'text/plain' });
+      
+      const testPath = `simple-test/${Date.now()}_test.txt`;
+      const storageRef = ref(storage, testPath);
+      
+      console.log('📤 Uploading test file to:', testPath);
+      
+      const uploadTask = uploadBytesResumable(storageRef, testFile);
+      
+      return new Promise((resolve, reject) => {
+        uploadTask.on('state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log('📊 Upload progress:', Math.round(progress) + '%');
+          },
+          (error) => {
+            console.error('❌ Upload error:', error);
+            reject(error);
+          },
+          async () => {
+            try {
+              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+              console.log('✅ Upload completed! URL:', downloadURL);
+              resolve(downloadURL);
+            } catch (urlError) {
+              console.error('❌ Error getting download URL:', urlError);
+              reject(urlError);
+            }
+          }
+        );
+      });
+    } catch (error) {
+      console.error('❌ Simple storage test failed:', error);
+      throw error;
+    }
+  };
+  
+  console.log('🔧 Firebase Storage test functions loaded:');
+  console.log('  - window.testFirebaseStorage()');
+  console.log('  - window.simpleStorageTest()');
+  console.log('  - window.testPhotoUpload(file)');
+}

@@ -1,27 +1,21 @@
 // src/pages/EstimateDashboard.js
-import React, { useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { updateDocById } from "../../lib/utils/firebaseHelpers";
 import "../../styles/page.css";
 import "../../styles/tables.css"; // Shared table styles
 import "../../styles/buttons.css"; // Importing buttons.css for button styles
 import "../../components/shared/shared.css";
-import ScopeEstimateClassic from "../Estimate/ScopeEstimateClassic";
+import ScopeEstimateClassic from "../estimate/ScopeEstimateClassic";
 import Layout from "../../components/Layout";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import ProposalModal from "./ProposalModal";
 import { 
   useProjectData, 
   useEstimateDashboard, 
-  useFormData, 
-  useModal, 
-  useEditingState 
+  useFormData
 } from "../../hooks/pages";
-import { 
-  FormField, 
-  EditableText, 
-  ConfirmationDialog 
-} from "../../components/shared";
+// Removed unused shared component imports
 
 export default function EstimateDashboard({ useSlug }) {
   const params = useParams();
@@ -36,14 +30,12 @@ export default function EstimateDashboard({ useSlug }) {
     error: scopesError, 
     addScope: addScopeToDb, 
     updateScope, 
-    deleteScope: deleteScopeFromDb,
-    calculateTotals 
+    deleteScope: deleteScopeFromDb
   } = useEstimateDashboard(projectIdOrSlug);
   
   // Form management for project details
   const {
     formData: editFields,
-    handleChange: handleProjectEditChange,
     updateFormData: setEditFields
   } = useFormData({
     name: project?.name || "",
@@ -55,11 +47,6 @@ export default function EstimateDashboard({ useSlug }) {
   });
   
   // Modal management
-  const proposalModal = useModal();
-  const deleteModal = useModal();
-  
-  // Editing state management
-  const editingState = useEditingState();
   
   // Form data for new scope
   const {
@@ -78,11 +65,8 @@ export default function EstimateDashboard({ useSlug }) {
 
   // Editing scope ID state
   const [editingScopeId, setEditingScopeId] = React.useState(null);
-  const [inPlaceScopeId, setInPlaceScopeId] = React.useState(null);
   
   // Loading states
-  const [addingScopeLoading, setAddingScopeLoading] = React.useState(false);
-  const [savingProjectLoading, setSavingProjectLoading] = React.useState(false);
   const [savingDescriptionLoading, setSavingDescriptionLoading] = React.useState(false);
   const [showProposalModal, setShowProposalModal] = React.useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
@@ -142,17 +126,6 @@ export default function EstimateDashboard({ useSlug }) {
     }
   };
 
-  const handleScopeEdit = async (scopeId, field, value) => {
-    await updateScope(scopeId, { [field]: value });
-  };
-
-  const handleScopeDelete = async () => {
-    if (deleteModal.data) {
-      await deleteScopeFromDb(deleteModal.data.id);
-      deleteModal.closeModal();
-    }
-  };
-
   const handleEditChange = (e) => {
     setEditFields({ ...editFields, [e.target.name]: e.target.value });
   };
@@ -165,8 +138,6 @@ export default function EstimateDashboard({ useSlug }) {
         scopeDescription: scope.description || "",
         scopeName: scope.name || ""
       });
-      // Clear the inPlaceScopeId to show scope editing mode
-      setInPlaceScopeId(null);
     }
   };
 
@@ -257,26 +228,26 @@ export default function EstimateDashboard({ useSlug }) {
 
   
   // Categories that should automatically have 7% PST applied
-  const PST_CATEGORIES = ['Materials', 'Subcontractors', 'Trucking & Aggregates'];
-  const PST_RATE = 0.07; // 7%
+  const PST_CATEGORIES = useMemo(() => ['Materials', 'Subcontractors', 'Trucking & Aggregates'], []);
+  const PST_RATE = useMemo(() => 0.07, []); // 7%
 
   // Function to automatically calculate PST for qualifying categories
-  const calculateAutoPST = (item) => {
+  const calculateAutoPST = useCallback((item) => {
     if (PST_CATEGORIES.includes(item.category)) {
       const subtotal = (item.quantity || 0) * (item.unitPrice || 0);
       return subtotal * PST_RATE;
     }
     return item.pst || 0;
-  };
+  }, [PST_CATEGORIES, PST_RATE]);
 
   // Function to calculate item total with auto PST and markup
-  const calculateItemTotal = (item) => {
+  const calculateItemTotal = useCallback((item) => {
     const subtotal = (item.quantity || 0) * (item.unitPrice || 0);
     const pst = calculateAutoPST(item);
     const subtotalWithPST = subtotal + pst;
     const markup = subtotalWithPST * ((item.markupPercent || 0) / 100);
     return subtotalWithPST + markup;
-  };
+  }, [calculateAutoPST]);
 
   // Memoized calculation to prevent unnecessary re-computations
   const filteredRows = useMemo(() => {
@@ -288,7 +259,7 @@ export default function EstimateDashboard({ useSlug }) {
         total: calculateItemTotal(item).toFixed(2)
       }))
     );
-  }, [scopeItems]);
+  }, [scopeItems, calculateItemTotal]);
 
   // Memoized category summary calculation for the currently edited scope
   const categorySummary = useMemo(() => {
@@ -324,7 +295,7 @@ export default function EstimateDashboard({ useSlug }) {
     
     // Convert to array and sort by total (descending)
     return Array.from(categoryMap.values()).sort((a, b) => b.total - a.total);
-  }, [editingScopeId, scopeItems, scopes]);
+  }, [editingScopeId, scopeItems, scopes, calculateItemTotal]);
 
   // Memoized scope totals calculation for summary view
   const scopeTotals = useMemo(() => {
@@ -343,7 +314,7 @@ export default function EstimateDashboard({ useSlug }) {
     });
     
     return Array.from(totals.values());
-  }, [scopeItems]);
+  }, [scopeItems, calculateItemTotal]);
   
   // Memoized total calculation
   const totalAmount = useMemo(() => {
@@ -373,7 +344,7 @@ export default function EstimateDashboard({ useSlug }) {
     
     // Convert to array and sort by total (descending)
     return Array.from(categoryMap.values()).sort((a, b) => b.total - a.total);
-  }, [scopeItems]);
+  }, [scopeItems, calculateItemTotal]);
   if (loading) {
     return (
       <Layout title="Estimate Dashboard">
@@ -395,10 +366,18 @@ export default function EstimateDashboard({ useSlug }) {
 
   return (
     <Layout title={project?.name ? `Project: ${project.name}` : "Estimate Dashboard"}>
-      <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start', width: '100%' }}>
+      <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start', width: '100%', maxWidth: 'none' }}>
         
         {/* Left column: Project Details OR Scope Details */}
-        <div style={{ minWidth: 320, maxWidth: 400, flex: '0 0 360px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+        <div style={{ 
+          minWidth: 320, 
+          maxWidth: 400,
+          flex: '0 0 auto',
+          width: 360,
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: 24
+        }}>
           {editingScopeId ? (
             <>
               {/* Scope Details Card */}
@@ -626,11 +605,6 @@ export default function EstimateDashboard({ useSlug }) {
                   <button className="classic-button" onClick={() => setShowProposalModal(true)}>
                     Create PDF Proposal
                   </button>
-                  {savingProjectLoading && (
-                    <span style={{ fontSize: '12px', color: 'var(--color-secondary-text)', alignSelf: 'center' }}>
-                      Saving...
-                    </span>
-                  )}
                 </div>
               </div>
             </div>
@@ -685,14 +659,6 @@ export default function EstimateDashboard({ useSlug }) {
                 onBack={cancelScopeEdit}
                 onScopeNavigation={handleScopeNavigation}
               />
-            ) : inPlaceScopeId ? (
-              /* Legacy scope editing - shouldn't happen now */
-              <ScopeEstimateClassic
-                projectId={projectIdOrSlug}
-                scopeId={inPlaceScopeId}
-                onBack={() => setInPlaceScopeId(null)}
-                onScopeNavigation={handleScopeNavigation}
-              />
             ) : (
               /* Estimate Summary */
               <>
@@ -708,7 +674,7 @@ export default function EstimateDashboard({ useSlug }) {
                       placeholder="Add new scope..."
                       style={{ flex: 1 }}
                       onKeyPress={(e) => {
-                        if (e.key === 'Enter' && newScopeName.trim() && !addingScopeLoading) {
+                        if (e.key === 'Enter' && newScopeName.trim()) {
                           addScope();
                         }
                       }}
@@ -716,9 +682,9 @@ export default function EstimateDashboard({ useSlug }) {
                     <button 
                       className="classic-button" 
                       onClick={addScope}
-                      disabled={addingScopeLoading || !newScopeName.trim()}
+                      disabled={!newScopeName.trim()}
                     >
-                      {addingScopeLoading ? "Adding..." : "Add Scope"}
+                      Add Scope
                     </button>
                   </div>
                 </div>

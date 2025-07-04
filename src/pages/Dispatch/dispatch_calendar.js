@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Layout from "../../components/Layout";
+import LoadingSpinner from "../../components/LoadingSpinner";
 import { useProjectManagement } from "../../hooks/useProjectManagement";
 import { fetchCollection, addToCollection, updateDocById, deleteDocById } from "../../lib/utils/firebaseHelpers";
 import "../../styles/page.css";
@@ -328,12 +329,30 @@ export default function DispatchCalendarPage() {
     return selectedResources.some(r => r.id === resourceId);
   };
 
+  // Memoize grouped crew to avoid recalculating on every render
+  const groupedCrew = React.useMemo(() => {
+    return crew.reduce((acc, member) => {
+      if (!acc[member.role]) acc[member.role] = [];
+      acc[member.role].push(member);
+      return acc;
+    }, {});
+  }, [crew]);
+
+  // Memoize grouped equipment by type
+  const groupedEquipment = React.useMemo(() => {
+    return equipment.reduce((acc, item) => {
+      const type = item.type || 'Other';
+      if (!acc[type]) acc[type] = [];
+      acc[type].push(item);
+      return acc;
+    }, {});
+  }, [equipment]);
+
   if (loading || projectsLoading) {
     return (
       <Layout title="Dispatch & Scheduling">
         <div className="page-container">
-          <h1>📅 Dispatch Calendar</h1>
-          <div>Loading dispatch data...</div>
+          <LoadingSpinner />
         </div>
       </Layout>
     );
@@ -457,7 +476,6 @@ export default function DispatchCalendarPage() {
             <table className="norskk-table">
               <thead>
                 <tr>
-                  <th style={{ width: "30px" }}>✓</th>
                   <th>Project Name</th>
                 </tr>
               </thead>
@@ -465,18 +483,12 @@ export default function DispatchCalendarPage() {
                 {projects.map(project => (
                   <tr 
                     key={project.id}
+                    onClick={() => setSelectedProject(project.id)}
                     style={{ 
-                      backgroundColor: selectedProject === project.id ? "#e6f3ff" : "transparent"
+                      backgroundColor: selectedProject === project.id ? "#b3d9ff" : "transparent",
+                      cursor: "pointer"
                     }}
                   >
-                    <td style={{ textAlign: "center" }}>
-                      <input
-                        type="checkbox"
-                        checked={selectedProject === project.id}
-                        onChange={() => setSelectedProject(project.id)}
-                        style={{ cursor: "pointer" }}
-                      />
-                    </td>
                     <td>{project.name}</td>
                   </tr>
                 ))}
@@ -488,34 +500,37 @@ export default function DispatchCalendarPage() {
           <div className="table-section">
             <h3>👥 Crew Members</h3>
             <table className="norskk-table">
-              <thead>
-                <tr>
-                  <th style={{ width: "30px" }}>✓</th>
-                  <th>Name</th>
-                  <th>Role</th>
-                </tr>
-              </thead>
               <tbody>
-                {crew.map(member => (
-                  <tr 
-                    key={member.id}
-                    style={{ 
-                      backgroundColor: isResourceSelected(member.id) ? "#e6f3ff" : "transparent"
-                    }}
-                  >
-                    <td style={{ textAlign: "center" }}>
-                      <input
-                        type="checkbox"
-                        checked={isResourceSelected(member.id)}
-                        onChange={() => toggleResourceSelection({ id: member.id, type: 'crew', data: member })}
-                        style={{ cursor: "pointer" }}
-                      />
-                    </td>
-                    <td>
-                      {member.name}
-                    </td>
-                    <td>{member.role}</td>
-                  </tr>
+                {Object.entries(groupedCrew).map(([role, members]) => (
+                  <React.Fragment key={role}>
+                    <tr>
+                      <td 
+                        style={{ 
+                          fontWeight: 'bold', 
+                          backgroundColor: '#d4d0c8',
+                          color: '#222',
+                          textAlign: 'left',
+                          padding: '4px 8px'
+                        }}
+                      >
+                        {role}
+                      </td>
+                    </tr>
+                    {members.map(member => (
+                      <tr 
+                        key={member.id}
+                        onClick={() => toggleResourceSelection({ id: member.id, type: 'crew', data: member })}
+                        style={{ 
+                          backgroundColor: isResourceSelected(member.id) ? "#b3d9ff" : "transparent",
+                          cursor: "pointer"
+                        }}
+                      >
+                        <td>
+                          {member.name}
+                        </td>
+                      </tr>
+                    ))}
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>
@@ -525,32 +540,37 @@ export default function DispatchCalendarPage() {
           <div className="table-section">
             <h3>🚜 Equipment</h3>
             <table className="norskk-table">
-              <thead>
-                <tr>
-                  <th style={{ width: "30px" }}>✓</th>
-                  <th>Name</th>
-                </tr>
-              </thead>
               <tbody>
-                {equipment.map(item => (
-                  <tr 
-                    key={item.id}
-                    style={{ 
-                      backgroundColor: isResourceSelected(item.id) ? "#e6f3ff" : "transparent"
-                    }}
-                  >
-                    <td style={{ textAlign: "center" }}>
-                      <input
-                        type="checkbox"
-                        checked={isResourceSelected(item.id)}
-                        onChange={() => toggleResourceSelection({ id: item.id, type: 'equipment', data: item })}
-                        style={{ cursor: "pointer" }}
-                      />
-                    </td>
-                    <td>
-                      {item.name}
-                    </td>
-                  </tr>
+                {Object.entries(groupedEquipment).map(([type, items]) => (
+                  <React.Fragment key={type}>
+                    <tr>
+                      <td 
+                        style={{ 
+                          fontWeight: 'bold', 
+                          backgroundColor: '#d4d0c8',
+                          color: '#222',
+                          textAlign: 'left',
+                          padding: '4px 8px'
+                        }}
+                      >
+                        {type}
+                      </td>
+                    </tr>
+                    {items.map(item => (
+                      <tr 
+                        key={item.id}
+                        onClick={() => toggleResourceSelection({ id: item.id, type: 'equipment', data: item })}
+                        style={{ 
+                          backgroundColor: isResourceSelected(item.id) ? "#b3d9ff" : "transparent",
+                          cursor: "pointer"
+                        }}
+                      >
+                        <td>
+                          {item.name}
+                        </td>
+                      </tr>
+                    ))}
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>

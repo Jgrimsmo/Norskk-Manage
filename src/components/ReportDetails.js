@@ -118,28 +118,35 @@ export default function ReportDetails({ report, onExportPDF }) {
                 ))}
               </div>
             </div>
-            <div className="content-item">
-              <strong>Materials:</strong>
-              <p>{report.materials}</p>
-            </div>
           </div>
         </div>
 
         {report.photos && report.photos.length > 0 && (
           <div className="report-section">
-            <h4>Site Photos</h4>
+            <h4>Site Photos ({report.photos.length})</h4>
             <div className="report-photos">
-              {report.photos.map((photo, index) => (
-                <div key={index} className="report-photo-item">
-                  <img 
-                    src={photo.url} 
-                    alt={`Site photo ${index + 1}`}
-                    className="report-photo"
-                    onClick={() => window.open(photo.url, '_blank')}
-                  />
-                  <span className="report-photo-name">{photo.name}</span>
-                </div>
-              ))}
+              {report.photos.map((photo, index) => {
+                console.log(`ReportDetails Photo ${index}:`, photo);
+                return (
+                  <div key={index} className="report-photo-item">
+                    <img 
+                      src={photo.url} 
+                      alt={`Site photo ${index + 1}`}
+                      className="report-photo"
+                      onClick={() => window.open(photo.url, '_blank')}
+                      onError={(e) => {
+                        console.error(`Failed to load photo ${index} in ReportDetails:`, photo.url);
+                        e.target.style.border = '2px solid red';
+                        e.target.style.background = '#ffe6e6';
+                      }}
+                      onLoad={() => {
+                        console.log(`Photo ${index} loaded in ReportDetails:`, photo.url);
+                      }}
+                    />
+                    <span className="report-photo-name">{photo.name}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

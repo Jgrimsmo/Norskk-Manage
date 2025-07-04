@@ -1,7 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "../../styles/tables.css";
 import Layout from "../../components/Layout";
 import { fetchCollection, addToCollection, updateDocById, deleteDocById } from "../../lib/utils/firebaseHelpers";
+
+// Predefined roles for dropdown
+const CREW_ROLES = [
+  "Foreman",
+  "Operator",
+  "Laborer", 
+  "Director",
+  "Accounting",
+  "Project Manager",
+  "Subcontractor"
+];
 
 // Fallback data for initial seeding
 const initialCrew = [
@@ -19,11 +30,94 @@ function AddCrewModal({ show, onClose, onAdd }) {
         <h2>Add Crew Member</h2>
         <form className="add-project-form" onSubmit={e => { e.preventDefault(); if (form.name && form.role) { onAdd(form); setForm({ name: "", role: "", phone: "" }); }}}>
           <input name="name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Name" />
-          <input name="role" value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))} placeholder="Role" />
+          <select 
+            name="role" 
+            value={form.role} 
+            onChange={e => setForm(f => ({ ...f, role: e.target.value }))}
+            style={{ 
+              padding: '8px 12px', 
+              border: '1px solid #ccc', 
+              borderRadius: '4px', 
+              fontSize: '14px', 
+              backgroundColor: 'white',
+              marginTop: '8px',
+              marginBottom: '8px',
+              width: '100%',
+              boxSizing: 'border-box',
+              appearance: 'none',
+              backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 4 5\'><path fill=\'%23666\' d=\'M2 0L0 2h4zm0 5L0 3h4z\'/></svg>")',
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'right 8px center',
+              backgroundSize: '12px',
+              paddingRight: '30px'
+            }}
+          >
+            <option value="">Select Role</option>
+            {CREW_ROLES.map(role => (
+              <option key={role} value={role}>{role}</option>
+            ))}
+          </select>
           <input name="phone" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="Phone Number" />
           <div className="modal-actions">
             <button className="classic-button" type="submit">Add</button>
             <button className="classic-button" type="button" onClick={onClose}>Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function EditCrewModal({ show, member, editForm, setEditForm, onSave, onCancel }) {
+  if (!show || !member) return null;
+  
+  return (
+    <div className="add-project-modal-bg" onClick={onCancel}>
+      <div className="add-project-modal" onClick={e => e.stopPropagation()}>
+        <h2>Edit Crew Member</h2>
+        <form className="add-project-form" onSubmit={e => { e.preventDefault(); onSave(); }}>
+          <input 
+            name="name" 
+            value={editForm.name} 
+            onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))} 
+            placeholder="Name" 
+          />
+          <select 
+            name="role" 
+            value={editForm.role} 
+            onChange={e => setEditForm(f => ({ ...f, role: e.target.value }))}
+            style={{ 
+              padding: '8px 12px', 
+              border: '1px solid #ccc', 
+              borderRadius: '4px', 
+              fontSize: '14px', 
+              backgroundColor: 'white',
+              marginTop: '8px',
+              marginBottom: '8px',
+              width: '100%',
+              boxSizing: 'border-box',
+              appearance: 'none',
+              backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 4 5\'><path fill=\'%23666\' d=\'M2 0L0 2h4zm0 5L0 3h4z\'/></svg>")',
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'right 8px center',
+              backgroundSize: '12px',
+              paddingRight: '30px'
+            }}
+          >
+            <option value="">Select Role</option>
+            {CREW_ROLES.map(role => (
+              <option key={role} value={role}>{role}</option>
+            ))}
+          </select>
+          <input 
+            name="phone" 
+            value={editForm.phone} 
+            onChange={e => setEditForm(f => ({ ...f, phone: e.target.value }))} 
+            placeholder="Phone Number" 
+          />
+          <div className="modal-actions">
+            <button className="classic-button" type="submit">Save Changes</button>
+            <button className="classic-button" type="button" onClick={onCancel}>Cancel</button>
           </div>
         </form>
       </div>
@@ -36,15 +130,21 @@ export default function CrewPage() {
   const [showAdd, setShowAdd] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [editingCell, setEditingCell] = useState(null); // { crewId, field }
-  const [editValue, setEditValue] = useState('');
+  const [editingMember, setEditingMember] = useState(null); // { crewId, name, role, phone }
+  const [editForm, setEditForm] = useState({ name: '', role: '', phone: '' });
+  
+  // Group crew members by role
+  const groupedCrew = crew.reduce((groups, member) => {
+    const role = member.role || 'Unassigned';
+    if (!groups[role]) {
+      groups[role] = [];
+    }
+    groups[role].push(member);
+    return groups;
+  }, {});
 
   // Load crew from Firebase on component mount
-  useEffect(() => {
-    loadCrew();
-  }, []);
-
-  const loadCrew = async () => {
+  const loadCrew = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -64,7 +164,11 @@ export default function CrewPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadCrew();
+  }, [loadCrew]);
 
   const seedInitialCrew = async () => {
     try {
@@ -106,22 +210,25 @@ export default function CrewPage() {
     }
   };
 
-  const handleEdit = (crewId, field, currentValue) => {
-    setEditingCell({ crewId, field });
-    setEditValue(currentValue || '');
+  const handleEdit = (member) => {
+    setEditingMember(member);
+    setEditForm({
+      name: member.name || '',
+      role: member.role || '',
+      phone: member.phone || ''
+    });
   };
 
   const handleSaveEdit = async () => {
-    if (!editingCell) return;
+    if (!editingMember) return;
     
     try {
-      const { crewId, field } = editingCell;
-      await updateDocById("crew", crewId, { [field]: editValue });
+      await updateDocById("crew", editingMember.id, editForm);
       setCrew(prev => prev.map(member => 
-        member.id === crewId ? { ...member, [field]: editValue } : member
+        member.id === editingMember.id ? { ...member, ...editForm } : member
       ));
-      setEditingCell(null);
-      setEditValue('');
+      setEditingMember(null);
+      setEditForm({ name: '', role: '', phone: '' });
     } catch (err) {
       console.error("Error updating crew member:", err);
       alert("Failed to update crew member. Please try again.");
@@ -129,8 +236,8 @@ export default function CrewPage() {
   };
 
   const handleCancelEdit = () => {
-    setEditingCell(null);
-    setEditValue('');
+    setEditingMember(null);
+    setEditForm({ name: '', role: '', phone: '' });
   };
 
   if (loading) {
@@ -177,136 +284,53 @@ export default function CrewPage() {
                 </td>
               </tr>
             ) : (
-              crew.map(member => (
-                <tr key={member.id}>
-                  <td>
-                    {editingCell?.crewId === member.id && editingCell?.field === 'name' ? (
-                      <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                        <input
-                          type="text"
-                          value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleSaveEdit();
-                            if (e.key === 'Escape') handleCancelEdit();
-                          }}
-                          autoFocus
-                          style={{ padding: '4px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '14px' }}
-                        />
-                        <button
-                          onClick={handleSaveEdit}
-                          style={{ padding: '2px 6px', fontSize: '12px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
-                        >
-                          ✓
-                        </button>
-                        <button
-                          onClick={handleCancelEdit}
-                          style={{ padding: '2px 6px', fontSize: '12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
-                        >
-                          ✗
-                        </button>
-                      </div>
-                    ) : (
-                      <span 
-                        onClick={() => handleEdit(member.id, 'name', member.name)}
-                        style={{ cursor: 'pointer', padding: '4px', borderRadius: '4px' }}
-                        onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f0f0'}
-                        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                        title="Click to edit"
-                      >
+              Object.entries(groupedCrew).map(([role, members]) => (
+                <React.Fragment key={role}>
+                  {/* Role Header Row */}
+                  <tr style={{ backgroundColor: '#f8f9fa', borderTop: '2px solid #dee2e6' }}>
+                    <td colSpan="4" style={{ 
+                      fontWeight: 'bold', 
+                      fontSize: '16px', 
+                      padding: '12px 8px',
+                      color: '#495057',
+                      borderBottom: '1px solid #dee2e6'
+                    }}>
+                      {role} ({members.length})
+                    </td>
+                  </tr>
+                  {/* Crew Members for this Role */}
+                  {members.map(member => (
+                    <tr key={member.id} style={{ backgroundColor: '#fdfdfd' }}>
+                      <td style={{ paddingLeft: '20px' }}>
                         {member.name}
-                      </span>
-                    )}
-                  </td>
-                  <td>
-                    {editingCell?.crewId === member.id && editingCell?.field === 'role' ? (
-                      <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                        <input
-                          type="text"
-                          value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleSaveEdit();
-                            if (e.key === 'Escape') handleCancelEdit();
-                          }}
-                          autoFocus
-                          style={{ padding: '4px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '14px' }}
-                        />
-                        <button
-                          onClick={handleSaveEdit}
-                          style={{ padding: '2px 6px', fontSize: '12px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
-                        >
-                          ✓
-                        </button>
-                        <button
-                          onClick={handleCancelEdit}
-                          style={{ padding: '2px 6px', fontSize: '12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
-                        >
-                          ✗
-                        </button>
-                      </div>
-                    ) : (
-                      <span 
-                        onClick={() => handleEdit(member.id, 'role', member.role)}
-                        style={{ cursor: 'pointer', padding: '4px', borderRadius: '4px' }}
-                        onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f0f0'}
-                        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                        title="Click to edit"
-                      >
+                      </td>
+                      <td>
                         {member.role}
-                      </span>
-                    )}
-                  </td>
-                  <td>
-                    {editingCell?.crewId === member.id && editingCell?.field === 'phone' ? (
-                      <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                        <input
-                          type="text"
-                          value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleSaveEdit();
-                            if (e.key === 'Escape') handleCancelEdit();
-                          }}
-                          autoFocus
-                          style={{ padding: '4px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '14px' }}
-                          placeholder="Phone Number"
-                        />
-                        <button
-                          onClick={handleSaveEdit}
-                          style={{ padding: '2px 6px', fontSize: '12px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
-                        >
-                          ✓
-                        </button>
-                        <button
-                          onClick={handleCancelEdit}
-                          style={{ padding: '2px 6px', fontSize: '12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
-                        >
-                          ✗
-                        </button>
-                      </div>
-                    ) : (
-                      <span 
-                        onClick={() => handleEdit(member.id, 'phone', member.phone)}
-                        style={{ cursor: 'pointer', padding: '4px', borderRadius: '4px' }}
-                        onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f0f0'}
-                        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                        title="Click to edit"
-                      >
+                      </td>
+                      <td>
                         {member.phone || '-'}
-                      </span>
-                    )}
-                  </td>
-                  <td>
-                    <button
-                      className="classic-button"
-                      onClick={() => handleDelete(member.id)}
-                      style={{ backgroundColor: '#dc3545', color: 'white', fontSize: '12px', padding: '4px 8px' }}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button
+                            className="classic-button"
+                            onClick={() => handleEdit(member)}
+                            style={{ backgroundColor: '#007bff', color: 'white', fontSize: '12px', padding: '4px 8px' }}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="classic-button"
+                            onClick={() => handleDelete(member.id)}
+                            style={{ backgroundColor: '#dc3545', color: 'white', fontSize: '12px', padding: '4px 8px' }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </React.Fragment>
               ))
             )}
           </tbody>
@@ -320,6 +344,14 @@ export default function CrewPage() {
         + Add Crew Member
       </button>
       <AddCrewModal show={showAdd} onClose={() => setShowAdd(false)} onAdd={handleAdd} />
+      <EditCrewModal 
+        show={!!editingMember} 
+        member={editingMember}
+        editForm={editForm}
+        setEditForm={setEditForm}
+        onSave={handleSaveEdit}
+        onCancel={handleCancelEdit}
+      />
     </Layout>
   );
 }

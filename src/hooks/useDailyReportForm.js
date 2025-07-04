@@ -18,7 +18,6 @@ export const useDailyReportForm = (report = null) => {
     safetyIncidents: '',
     issuesDelays: '',
     equipmentUsed: [],
-    materials: '',
     photos: [],
     status: 'draft'
   });
@@ -89,7 +88,6 @@ export const useDailyReportForm = (report = null) => {
       safetyIncidents: '',
       issuesDelays: '',
       equipmentUsed: [],
-      materials: '',
       photos: [],
       status: 'draft'
     });

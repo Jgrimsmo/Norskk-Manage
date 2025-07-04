@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchCollection, addToCollection, updateDocById, deleteDocById } from '../lib/utils/firebaseHelpers';
+import { fetchCollection, addToCollection, updateDocById, deleteDocById, uploadPhotos } from '../lib/utils/firebaseHelpers';
 
 export function useReportManagement() {
   const [reports, setReports] = useState([]);
@@ -34,24 +34,72 @@ export function useReportManagement() {
 
   const handleSaveReport = async (reportData) => {
     try {
+      console.log('handleSaveReport called with:', reportData);
       const editingReport = reports.find(r => r.id === reportData.id);
       
       if (editingReport) {
         // Update existing report
-        await updateDocById("dailyReports", editingReport.id, {
+        console.log('Updating existing report:', editingReport.id);
+        
+        // Handle photo uploads if there are photos
+        let uploadedPhotos = [];
+        if (reportData.photos && reportData.photos.length > 0) {
+          console.log('Uploading photos for existing report, count:', reportData.photos.length);
+          uploadedPhotos = await uploadPhotos(reportData.photos, editingReport.id);
+        }
+        
+        // Create the report data without File objects
+        const cleanReportData = {
           ...reportData,
+          photos: uploadedPhotos,
           updatedAt: new Date().toISOString()
-        });
-        setReports(reports.map(r => r.id === editingReport.id ? { ...reportData, id: editingReport.id } : r));
+        };
+        delete cleanReportData.id; // Remove ID from data to avoid conflicts
+        
+        await updateDocById("dailyReports", editingReport.id, cleanReportData);
+        setReports(reports.map(r => r.id === editingReport.id ? { ...cleanReportData, id: editingReport.id } : r));
+        console.log('Report updated successfully');
       } else {
         // Create new report
-        const newReport = {
-          ...reportData,
+        console.log('Creating new report');
+        
+        // Separate photos from report data to avoid serialization issues
+        const photosToUpload = reportData.photos || [];
+        const reportDataWithoutPhotos = { ...reportData };
+        delete reportDataWithoutPhotos.photos;
+        
+        // First, create the report without photos
+        const newReportWithoutPhotos = {
+          ...reportDataWithoutPhotos,
+          photos: [],
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         };
-        const docRef = await addToCollection("dailyReports", newReport);
-        setReports([...reports, { ...newReport, id: docRef.id }]);
+        
+        console.log('Adding report to Firestore (without photos)');
+        const docRef = await addToCollection("dailyReports", newReportWithoutPhotos);
+        console.log('Report created with ID:', docRef.id);
+        
+        // Now upload photos with the real report ID
+        let uploadedPhotos = [];
+        if (photosToUpload.length > 0) {
+          console.log('Uploading photos for new report, count:', photosToUpload.length);
+          try {
+            uploadedPhotos = await uploadPhotos(photosToUpload, docRef.id);
+            console.log('Photos uploaded successfully:', uploadedPhotos.length);
+            
+            // Update the report with the photo URLs
+            await updateDocById("dailyReports", docRef.id, { photos: uploadedPhotos });
+            console.log('Report updated with photo URLs');
+          } catch (photoError) {
+            console.error('Error uploading photos, but report was saved:', photoError);
+            // Continue even if photo upload fails
+          }
+        }
+        
+        const finalReport = { ...newReportWithoutPhotos, id: docRef.id, photos: uploadedPhotos };
+        setReports([...reports, finalReport]);
+        console.log('Report saved successfully:', finalReport.id);
       }
     } catch (err) {
       console.error("Error saving report:", err);

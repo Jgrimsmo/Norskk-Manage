@@ -196,10 +196,6 @@ export default function PDFPreviewModal({ show, onClose, report }) {
                     )}
                   </div>
                 </div>
-                <div className="pdf-text-item">
-                  <strong>Materials Used:</strong>
-                  <p>{report.materials || 'No materials reported'}</p>
-                </div>
               </div>
             </div>
 

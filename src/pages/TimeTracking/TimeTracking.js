@@ -5,13 +5,124 @@ import "../../styles/page.css";
 import "./TimeTrackingPDFPreview.css";
 import "./TimeTracking.css";
 import Layout from "../../components/Layout";
-import EquipmentPage from "../Equipment/equipment";
 import { fetchCollection } from "../../lib/utils/firebaseHelpers";
 import { useAuth } from "../../contexts/AuthContext";
 import { PERMISSIONS } from "../../contexts/AuthContext";
-import { Document, Page, Text, View, StyleSheet, pdf, PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 import * as XLSX from 'xlsx';
 import { addToCollection, updateDocById, deleteDocById } from "../../lib/utils/firebaseHelpers";
+
+// Autocomplete Employee Dropdown Component
+function EmployeeAutocomplete({ value, onChange, crew, disabled = false }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [inputValue, setInputValue] = useState(value || '');
+  const [filteredCrew, setFilteredCrew] = useState(crew);
+  const inputRef = useRef(null);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    setInputValue(value || '');
+  }, [value]);
+
+  useEffect(() => {
+    setFilteredCrew(crew);
+  }, [crew]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleInputChange = (e) => {
+    const searchValue = e.target.value;
+    setInputValue(searchValue);
+    onChange(searchValue);
+
+    // Filter crew members based on input
+    const filtered = crew.filter(member =>
+      member.name.toLowerCase().includes(searchValue.toLowerCase())
+    );
+    setFilteredCrew(filtered);
+    setIsOpen(searchValue.length > 0 && filtered.length > 0);
+  };
+
+  const handleSelectEmployee = (employeeName) => {
+    setInputValue(employeeName);
+    onChange(employeeName);
+    setIsOpen(false);
+  };
+
+  const handleFocus = () => {
+    if (!disabled && crew.length > 0) {
+      setFilteredCrew(crew);
+      setIsOpen(true);
+    }
+  };
+
+  return (
+    <div style={{ position: 'relative' }} ref={dropdownRef}>
+      <input
+        ref={inputRef}
+        type="text"
+        value={inputValue}
+        onChange={handleInputChange}
+        onFocus={handleFocus}
+        placeholder="Start typing employee name..."
+        className="table-input"
+        disabled={disabled}
+        style={{
+          width: '100%',
+          padding: '4px 8px',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+          fontSize: '14px'
+        }}
+      />
+      {isOpen && filteredCrew.length > 0 && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            backgroundColor: 'white',
+            border: '1px solid #ccc',
+            borderTop: 'none',
+            borderRadius: '0 0 4px 4px',
+            maxHeight: '150px',
+            overflowY: 'auto',
+            zIndex: 1000,
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+          }}
+        >
+          {filteredCrew.map(member => (
+            <div
+              key={member.id}
+              onClick={() => handleSelectEmployee(member.name)}
+              style={{
+                padding: '8px 12px',
+                cursor: 'pointer',
+                borderBottom: '1px solid #eee',
+                fontSize: '14px'
+              }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#f5f5f5'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = 'white'}
+            >
+              <div style={{ fontWeight: '500' }}>{member.name}</div>
+              <div style={{ fontSize: '12px', color: '#666' }}>{member.role}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function getPayPeriodDates(start, end) {
   const dates = [];
@@ -1259,26 +1370,12 @@ export default function TimeTracking() {
                       <tr key={row.id}>
                         <td>{formatDateString(row.date)}</td>
                         <td>
-                          {canAssignEmployees() ? (
-                            <select
-                              value={row.employee}
-                              onChange={e => handleChange(row.id, "employee", e.target.value)}
-                              className="table-input"
-                            >
-                              <option value="">Select employee</option>
-                              {crew.map(member => (
-                                <option key={member.id} value={member.name}>{member.name}</option>
-                              ))}
-                            </select>
-                          ) : (
-                            <input 
-                              value={row.employee} 
-                              onChange={e => handleChange(row.id, "employee", e.target.value)} 
-                              placeholder="Employee name" 
-                              className={`table-input ${canAssignEmployees() ? 'employee-select-enabled' : 'employee-select-disabled'}`}
-                              readOnly={!canAssignEmployees()}
-                            />
-                          )}
+                          <EmployeeAutocomplete
+                            value={row.employee}
+                            onChange={value => handleChange(row.id, "employee", value)}
+                            crew={crew}
+                            disabled={!canAssignEmployees()}
+                          />
                         </td>
                         <td>
                           <select

@@ -54,11 +54,11 @@ export default function EquipmentPage() {
   const [showAdd, setShowAdd] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
   const [editingCell, setEditingCell] = useState(null); // { equipmentId, field }
   const [editValue, setEditValue] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [showTypeFilter, setShowTypeFilter] = useState(false);
+  const [selectedEquipment, setSelectedEquipment] = useState(null); // For equipment details view
 
   const seedInitialEquipment = useCallback(async () => {
     try {
@@ -174,9 +174,185 @@ export default function EquipmentPage() {
     return eq.type === typeFilter;
   });
 
+  // Memoize grouped equipment by type
+  const groupedEquipment = React.useMemo(() => {
+    const equipmentToGroup = typeFilter ? filteredEquipment : equipment;
+    return equipmentToGroup.reduce((acc, item) => {
+      const type = item.type || 'Other';
+      if (!acc[type]) acc[type] = [];
+      acc[type].push(item);
+      return acc;
+    }, {});
+  }, [equipment, typeFilter, filteredEquipment]);
+
   const handleTypeFilterSelect = (type) => {
     setTypeFilter(type);
     setShowTypeFilter(false);
+  };
+
+  // Equipment details view component
+  const EquipmentDetailsView = ({ equipment, onBack }) => {
+    return (
+      <div className="table-section">
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+          <button 
+            className="classic-button" 
+            onClick={onBack}
+            style={{ marginRight: '16px' }}
+          >
+            ← Back to Equipment List
+          </button>
+          <h2 style={{ margin: 0 }}>{equipment.name}</h2>
+        </div>
+        
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+          gap: '20px' 
+        }}>
+          {/* Basic Information Card */}
+          <div style={{ 
+            border: '2px inset #c0c0c0', 
+            padding: '16px', 
+            backgroundColor: '#f5f5f5' 
+          }}>
+            <h3 style={{ marginTop: 0, borderBottom: '1px solid #999', paddingBottom: '8px' }}>
+              Basic Information
+            </h3>
+            <div style={{ lineHeight: '1.6' }}>
+              <div><strong>Name:</strong> {equipment.name}</div>
+              <div><strong>Type:</strong> {equipment.type}</div>
+              <div><strong>Status:</strong> {equipment.status || 'Available'}</div>
+              <div><strong>Added:</strong> {equipment.createdAt ? new Date(equipment.createdAt).toLocaleDateString() : 'N/A'}</div>
+            </div>
+          </div>
+
+          {/* Equipment Hours Card */}
+          <div style={{ 
+            border: '2px inset #c0c0c0', 
+            padding: '16px', 
+            backgroundColor: '#f5f5f5' 
+          }}>
+            <h3 style={{ marginTop: 0, borderBottom: '1px solid #999', paddingBottom: '8px' }}>
+              Equipment Hours
+            </h3>
+            <div style={{ lineHeight: '1.6' }}>
+              <div><strong>Total Hours:</strong> {equipment.totalHours || '0'} hrs</div>
+              <div><strong>This Month:</strong> {equipment.monthlyHours || '0'} hrs</div>
+              <div><strong>Last Used:</strong> {equipment.lastUsed || 'Never'}</div>
+              <div><strong>Average Daily:</strong> {equipment.avgDailyHours || '0'} hrs</div>
+            </div>
+          </div>
+
+          {/* Maintenance & Inspections Card */}
+          <div style={{ 
+            border: '2px inset #c0c0c0', 
+            padding: '16px', 
+            backgroundColor: '#f5f5f5' 
+          }}>
+            <h3 style={{ marginTop: 0, borderBottom: '1px solid #999', paddingBottom: '8px' }}>
+              Maintenance & Inspections
+            </h3>
+            <div style={{ lineHeight: '1.6' }}>
+              <div><strong>Last Service:</strong> {equipment.lastService || 'Never'}</div>
+              <div><strong>Next Service Due:</strong> {equipment.nextService || 'TBD'}</div>
+              <div><strong>Last Inspection:</strong> {equipment.lastInspection || 'Never'}</div>
+              <div><strong>Inspection Status:</strong> 
+                <span style={{ 
+                  color: equipment.inspectionStatus === 'Passed' ? '#28a745' : 
+                        equipment.inspectionStatus === 'Failed' ? '#dc3545' : '#ffc107',
+                  fontWeight: 'bold',
+                  marginLeft: '8px'
+                }}>
+                  {equipment.inspectionStatus || 'Pending'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Issues & Notes Card */}
+          <div style={{ 
+            border: '2px inset #c0c0c0', 
+            padding: '16px', 
+            backgroundColor: '#f5f5f5' 
+          }}>
+            <h3 style={{ marginTop: 0, borderBottom: '1px solid #999', paddingBottom: '8px' }}>
+              Issues & Notes
+            </h3>
+            <div style={{ lineHeight: '1.6' }}>
+              <div><strong>Active Issues:</strong> {equipment.activeIssues || '0'}</div>
+              <div><strong>Priority Issues:</strong> {equipment.priorityIssues || '0'}</div>
+              <div style={{ marginTop: '12px' }}>
+                <strong>Notes:</strong>
+                <div style={{ 
+                  marginTop: '8px', 
+                  padding: '8px', 
+                  backgroundColor: 'white', 
+                  border: '1px inset #c0c0c0',
+                  minHeight: '60px',
+                  fontSize: '14px'
+                }}>
+                  {equipment.notes || 'No notes available.'}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div style={{ marginTop: '24px', display: 'flex', gap: '12px' }}>
+          <button 
+            className="classic-button"
+            onClick={() => handleEdit(equipment.id, 'name', equipment.name)}
+            style={{ backgroundColor: '#007bff', color: 'white' }}
+          >
+            Edit Equipment
+          </button>
+          <button 
+            className="classic-button"
+            style={{ backgroundColor: '#28a745', color: 'white' }}
+          >
+            Add Inspection
+          </button>
+          <button 
+            className="classic-button"
+            style={{ backgroundColor: '#ffc107', color: '#212529' }}
+          >
+            Log Service
+          </button>
+          <button 
+            className="classic-button"
+            style={{ backgroundColor: '#dc3545', color: 'white' }}
+          >
+            Report Issue
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  if (loading) {
+    return (
+      <Layout title="Equipment">
+        <div style={{ textAlign: 'center', padding: '2rem' }}>
+          Loading equipment...
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout title="Equipment">
+        <div style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>
+          {error}
+          <br />
+          <button className="classic-button" onClick={loadEquipment} style={{ marginTop: '1rem' }}>
+            Try Again
+          </button>
+        </div>
+      </Layout>
+    );
   };
 
   if (loading) {
@@ -205,190 +381,125 @@ export default function EquipmentPage() {
 
   return (
     <Layout title="Equipment">
-      <div className="table-section">
-        <table className="norskk-table">
-          <thead>
-            <tr>
-              <th style={{ position: 'relative' }}>
-                Type
-                <span 
-                  className="filter-icon" 
-                  onClick={() => setShowTypeFilter(!showTypeFilter)}
-                  style={{ 
-                    marginLeft: '8px', 
-                    cursor: 'pointer', 
-                    fontSize: '12px',
-                    color: typeFilter ? '#007bff' : '#666'
-                  }}
-                  title="Filter by Type"
-                >
-                  ▼
-                </span>
-                {showTypeFilter && (
-                  <div 
-                    style={{
-                      position: 'absolute',
-                      top: '100%',
-                      left: '0',
-                      backgroundColor: 'white',
-                      border: '1px solid #ccc',
-                      borderRadius: '4px',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                      zIndex: 1000,
-                      minWidth: '150px'
-                    }}
-                  >
-                    <div 
-                      style={{
-                        padding: '8px 12px',
-                        cursor: 'pointer',
-                        backgroundColor: !typeFilter ? '#f0f0f0' : 'white'
-                      }}
-                      onClick={() => handleTypeFilterSelect('')}
-                      onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f0f0'}
-                      onMouseLeave={(e) => e.target.style.backgroundColor = !typeFilter ? '#f0f0f0' : 'white'}
-                    >
-                      All Types
-                    </div>
-                    {equipmentTypes.map(type => (
-                      <div 
-                        key={type}
-                        style={{
-                          padding: '8px 12px',
-                          cursor: 'pointer',
-                          backgroundColor: typeFilter === type ? '#f0f0f0' : 'white'
-                        }}
-                        onClick={() => handleTypeFilterSelect(type)}
-                        onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f0f0'}
-                        onMouseLeave={(e) => e.target.style.backgroundColor = typeFilter === type ? '#f0f0f0' : 'white'}
-                      >
-                        {type}
-                      </div>
-                    ))}
-                  </div>
+      {selectedEquipment ? (
+        <EquipmentDetailsView 
+          equipment={selectedEquipment} 
+          onBack={() => setSelectedEquipment(null)} 
+        />
+      ) : (
+        <>
+          <div className="table-section">
+            <table className="norskk-table">
+              <colgroup>
+                <col style={{ width: '70%' }} />
+                <col style={{ width: '30%' }} />
+              </colgroup>
+              <tbody>
+                {Object.entries(groupedEquipment).length === 0 ? (
+                  <tr>
+                    <td colSpan="2" style={{ textAlign: 'center', padding: '2rem', fontStyle: 'italic', color: '#666' }}>
+                      {typeFilter 
+                        ? `No equipment found for type "${typeFilter}". Try selecting a different type or clear the filter.`
+                        : "No equipment found. Click \"Add Equipment\" to get started."
+                      }
+                    </td>
+                  </tr>
+                ) : (
+                  Object.entries(groupedEquipment).map(([type, items]) => (
+                    <React.Fragment key={type}>
+                      <tr>
+                        <td 
+                          colSpan="2"
+                          style={{ 
+                            fontWeight: 'bold', 
+                            backgroundColor: '#c0b8a8',
+                            color: '#222',
+                            textAlign: 'left',
+                            padding: '4px 8px',
+                            fontSize: '14px'
+                          }}
+                        >
+                          {type}
+                        </td>
+                      </tr>
+                      {items.map(eq => (
+                        <tr key={eq.id}>
+                          <td>
+                            {editingCell?.equipmentId === eq.id && editingCell?.field === 'name' ? (
+                              <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                                <input
+                                  type="text"
+                                  value={editValue}
+                                  onChange={(e) => setEditValue(e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') handleSaveEdit();
+                                    if (e.key === 'Escape') handleCancelEdit();
+                                  }}
+                                  autoFocus
+                                  style={{ padding: '4px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '14px', flex: 1 }}
+                                />
+                                <button
+                                  onClick={handleSaveEdit}
+                                  style={{ padding: '2px 6px', fontSize: '12px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
+                                >
+                                  ✓
+                                </button>
+                                <button
+                                  onClick={handleCancelEdit}
+                                  style={{ padding: '2px 6px', fontSize: '12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
+                                >
+                                  ✗
+                                </button>
+                              </div>
+                            ) : (
+                              eq.name
+                            )}
+                          </td>
+                          <td>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <button
+                                className="classic-button"
+                                onClick={() => setSelectedEquipment(eq)}
+                                title="View equipment details"
+                                style={{ backgroundColor: '#007bff', color: 'white' }}
+                              >
+                                View
+                              </button>
+                              <button
+                                className="classic-button"
+                                onClick={() => handleEdit(eq.id, 'name', eq.name)}
+                                title="Edit equipment name"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                className="classic-button"
+                                onClick={() => handleDelete(eq.id)}
+                                title="Delete this equipment"
+                                style={{ backgroundColor: '#dc3545', color: 'white' }}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </React.Fragment>
+                  ))
                 )}
-              </th>
-              <th>Name</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredEquipment.length === 0 ? (
-              <tr>
-                <td colSpan="3" style={{ textAlign: 'center', padding: '2rem', fontStyle: 'italic', color: '#666' }}>
-                  {typeFilter 
-                    ? `No equipment found for type "${typeFilter}". Try selecting a different type or clear the filter.`
-                    : "No equipment found. Click \"Add Equipment\" to get started."
-                  }
-                </td>
-              </tr>
-            ) : (
-              filteredEquipment.map(eq => (
-                <tr key={eq.id}>
-                  <td>
-                    {editingCell?.equipmentId === eq.id && editingCell?.field === 'type' ? (
-                      <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                        <select
-                          value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleSaveEdit();
-                            if (e.key === 'Escape') handleCancelEdit();
-                          }}
-                          autoFocus
-                          style={{ padding: '4px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '14px' }}
-                        >
-                          {equipmentTypes.map(type => (
-                            <option key={type} value={type}>{type}</option>
-                          ))}
-                        </select>
-                        <button
-                          onClick={handleSaveEdit}
-                          style={{ padding: '2px 6px', fontSize: '12px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
-                        >
-                          ✓
-                        </button>
-                        <button
-                          onClick={handleCancelEdit}
-                          style={{ padding: '2px 6px', fontSize: '12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
-                        >
-                          ✗
-                        </button>
-                      </div>
-                    ) : (
-                      <span 
-                        onClick={() => handleEdit(eq.id, 'type', eq.type)}
-                        style={{ cursor: 'pointer', padding: '4px', borderRadius: '4px' }}
-                        onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f0f0'}
-                        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                        title="Click to edit"
-                      >
-                        {eq.type}
-                      </span>
-                    )}
-                  </td>
-                  <td>
-                    {editingCell?.equipmentId === eq.id && editingCell?.field === 'name' ? (
-                      <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                        <input
-                          type="text"
-                          value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleSaveEdit();
-                            if (e.key === 'Escape') handleCancelEdit();
-                          }}
-                          autoFocus
-                          style={{ padding: '4px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '14px' }}
-                        />
-                        <button
-                          onClick={handleSaveEdit}
-                          style={{ padding: '2px 6px', fontSize: '12px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
-                        >
-                          ✓
-                        </button>
-                        <button
-                          onClick={handleCancelEdit}
-                          style={{ padding: '2px 6px', fontSize: '12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
-                        >
-                          ✗
-                        </button>
-                      </div>
-                    ) : (
-                      <span 
-                        onClick={() => handleEdit(eq.id, 'name', eq.name)}
-                        style={{ cursor: 'pointer', padding: '4px', borderRadius: '4px' }}
-                        onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f0f0'}
-                        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                        title="Click to edit"
-                      >
-                        {eq.name}
-                      </span>
-                    )}
-                  </td>
-                  <td>
-                    <button
-                      className="classic-button"
-                      onClick={() => handleDelete(eq.id)}
-                      title="Delete this equipment"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-      <button
-        className="classic-button add-item-button"
-        style={{ marginTop: 16 }}
-        onClick={() => setShowAdd(true)}
-      >
-        + Add Equipment
-      </button>
-      <AddEquipmentModal show={showAdd} onClose={() => setShowAdd(false)} onAdd={handleAdd} />
+              </tbody>
+            </table>
+          </div>
+          <button
+            className="classic-button add-item-button"
+            style={{ marginTop: 16 }}
+            onClick={() => setShowAdd(true)}
+          >
+            + Add Equipment
+          </button>
+          <AddEquipmentModal show={showAdd} onClose={() => setShowAdd(false)} onAdd={handleAdd} />
+        </>
+      )}
     </Layout>
   );
 }

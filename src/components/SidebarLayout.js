@@ -19,11 +19,10 @@ export default function SidebarLayout({ children }) {
       />      <main 
         className={`main-content ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}
         style={{ 
-          marginLeft: sidebarCollapsed ? '-145px' : '5px',
-          marginRight: '0px',
+          marginLeft: sidebarCollapsed ? '60px' : '210px',
           transition: 'margin-left 0.3s ease',
-          padding: 0,
-          width: sidebarCollapsed ? 'calc(100vw - 70px)' : 'calc(100vw - 220px)'
+          flex: 1,
+          minWidth: 0
         }}
       >
         {children}

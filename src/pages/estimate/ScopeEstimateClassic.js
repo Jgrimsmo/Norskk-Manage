@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchCollection, addToCollection, fetchSubcollection, addToSubcollection, updateSubcollectionDoc, deleteSubcollectionDoc } from "../../lib/utils/firebaseHelpers";
+import { fetchCollection, fetchSubcollection, addToSubcollection, updateSubcollectionDoc, deleteSubcollectionDoc } from "../../lib/utils/firebaseHelpers";
 import '../../styles/page.css';
 import '../../styles/tables.css';
 import Layout from "../../components/Layout";
@@ -209,7 +209,7 @@ export default function ScopeEstimateClassic({ projectId, scopeId, onBack, onSco
         
         // Update the URL to reflect the new scope
         const currentPath = window.location.pathname;
-        const newPath = currentPath.replace(/\/[^\/]+$/, `/${newScopeId}`);
+        const newPath = currentPath.replace(/\/[^/]+$/, `/${newScopeId}`);
         window.history.pushState(null, '', newPath);
         
         // Force a page refresh to ensure all components update properly
@@ -292,11 +292,6 @@ export default function ScopeEstimateClassic({ projectId, scopeId, onBack, onSco
   const scopeTotal = items.reduce((acc, item) => acc + calculateItemTotal(item), 0);
   const filteredTotal = filteredItems.reduce((acc, item) => acc + calculateItemTotal(item), 0);
 
-  // Clear individual filter
-  const clearFilter = (filterKey) => {
-    setFilters(prev => ({ ...prev, [filterKey]: '' }));
-  };
-
   // Clear all filters
   const clearAllFilters = () => {
     setFilters({ category: '', description: '' });
@@ -322,11 +317,8 @@ export default function ScopeEstimateClassic({ projectId, scopeId, onBack, onSco
   const hasActiveFilters = Object.values(filters).some(filter => filter !== '');
   
   const content = (
-    <div style={{ display: 'flex', minHeight: 0, margin: 0, padding: 0 }}>
-      {/* Sidebar component here */}
-      {/* Main content area, remove background and padding to eliminate white area */}
-      <div style={{ flex: 1, margin: 0, padding: 0, background: 'none' }}>
-        <div style={{ padding: 0, margin: 0, maxWidth: '100%', height: 'auto', minHeight: 0 }}>
+    <div style={{ margin: 0, padding: 0 }}>
+      <div style={{ padding: 0, margin: 0, maxWidth: '100%', height: 'auto', minHeight: 0 }}>
           <div style={{ marginBottom: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
             {onBack && (
               <button
@@ -803,7 +795,6 @@ export default function ScopeEstimateClassic({ projectId, scopeId, onBack, onSco
             <button className="classic-button add-item-button" onClick={addItem}>+ Add Item</button>
           </div>
         </div>
-      </div>
     </div>
   );
 

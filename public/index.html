@@ -24,7 +24,20 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>React App</title>
+    <title>Norskk Management System</title>
+    
+    <!-- Suppress deprecated CSS warnings in development -->
+    <script>
+      if (process.env.NODE_ENV === 'development') {
+        const originalWarn = console.warn;
+        console.warn = function(...args) {
+          if (args[0] && args[0].includes && args[0].includes('-ms-high-contrast')) {
+            return; // Suppress -ms-high-contrast deprecation warnings
+          }
+          originalWarn.apply(console, args);
+        };
+      }
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

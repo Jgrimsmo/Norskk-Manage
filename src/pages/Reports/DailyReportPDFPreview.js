@@ -70,43 +70,66 @@ export default function DailyReportPDFPreview() {
 
   return (
     <div className="pdf-preview-fullscreen">
-      {/* Fixed Header with Actions */}
+      {/* Enhanced Professional Header */}
       <div className="pdf-preview-header">
         <div className="header-left">
           <button className="back-button" onClick={handleBack}>
-            ← Back to Reports
+            <span className="button-icon">←</span>
+            <span>Back to Reports</span>
           </button>
-          <h1>PDF Preview - Daily Report</h1>
+          <div className="header-title-section">
+            <h1>Daily Site Report</h1>
+            <div className="header-subtitle">
+              <span className="project-name">{report.project || 'Untitled Project'}</span>
+              <span className="report-date">{report.date || 'No Date'}</span>
+            </div>
+          </div>
         </div>
         <div className="header-actions">
-          {/* Photo Click Info */}
+          {/* Enhanced Photo Info Banner */}
           {report.photos && report.photos.length > 0 && (
-            <div className="photo-click-info">
+            <div className="photo-info-banner">
+              <div className="info-item">
+                <span className="info-icon">📷</span>
+                <span className="info-text">{report.photos.length} photo{report.photos.length !== 1 ? 's' : ''}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-icon">🔗</span>
+                <span className="info-text">Clickable in PDF</span>
+              </div>
               {report.photos.some(photo => photo.pdfReady === false) && (
-                <span style={{ fontSize: '12px', color: '#dc3545', marginRight: '16px' }}>
-                  ⚠️ Some images may not display due to CORS restrictions
-                </span>
+                <div className="info-item warning">
+                  <span className="info-icon">⚠️</span>
+                  <span className="info-text">Some images may not display</span>
+                </div>
               )}
-              <span style={{ fontSize: '12px', color: '#6c757d', marginRight: '16px' }}>
-                📷 Images are clickable in the downloaded PDF
-              </span>
             </div>
           )}
-          <button 
-            className="classic-button secondary"
-            onClick={handleBack}
-          >
-            Close Preview
-          </button>
-          <PDFDownloadLink 
-            document={<DailyReportPDF reportData={report} />} 
-            fileName={generateFileName()}
-            className="classic-button"
-          >
-            {({ blob, url, loading, error }) =>
-              loading ? '📄 Generating...' : '📄 Download PDF'
-            }
-          </PDFDownloadLink>
+          
+          {/* Action Buttons */}
+          <div className="action-buttons">
+            <button 
+              className="action-btn secondary"
+              onClick={handleBack}
+              title="Close PDF Preview"
+            >
+              <span className="btn-icon">✕</span>
+              <span>Close</span>
+            </button>
+            <PDFDownloadLink 
+              document={<DailyReportPDF reportData={report} />} 
+              fileName={generateFileName()}
+              className="action-btn primary"
+              title="Download PDF Report"
+            >
+              {({ blob, url, loading, error }) => (
+                <>
+                  <span className="btn-icon">{loading ? '⏳' : '📄'}</span>
+                  <span>{loading ? 'Generating...' : 'Download PDF'}</span>
+                </>
+              )}
+            </PDFDownloadLink>
+          </div>
         </div>
       </div>
 
